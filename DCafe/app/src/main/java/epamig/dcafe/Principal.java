@@ -2,16 +2,33 @@ package epamig.dcafe;
 
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.view.View;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+
+import com.google.gson.Gson;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.TextHttpResponseHandler;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import cz.msebera.android.httpclient.Header;
+import epamig.dcafe.model.Classe;
+import epamig.dcafe.model.Mapa;
+import epamig.dcafe.model.Poligono;
 
 public class Principal extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -40,6 +57,51 @@ public class Principal extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //PEGANDO VALORES DO WEBSERVICE
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get(
+                "http://200.235.94.40/dcafeconverterdados/poligonos.php", new TextHttpResponseHandler() {
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+
+                    }
+
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                        List<Poligono> poligonos = getPoligonos(responseString);
+                        for (Poligono poligono : poligonos) {
+                            Log.i("JSON ",poligono.convertePoligonoParaString(poligono));
+                        }
+                    }
+                });
+    }
+
+    private List<Poligono> getPoligonos(String jsonString) {
+        List<Poligono> poligonos = new ArrayList<>();
+        try {
+            JSONObject objJson = new JSONObject(jsonString);
+            JSONArray poligonosJson = objJson.getJSONArray("poligono");
+            for (int i = 0; i < poligonosJson.length(); i++) {
+                JSONObject jsonPoligono = new JSONObject(poligonosJson.getString(i));
+                Poligono objetoPoligono = new Poligono();
+
+                Classe objetoClasse = new Classe(jsonPoligono.getString("nomeClasse"),jsonPoligono.getString("corClasse"));
+                Mapa objetoMapa = new Mapa(jsonPoligono.getString("nomeMapa"),jsonPoligono.getString("cidadeMapa"));
+
+                objetoPoligono.setIdPoligono(jsonPoligono.getInt("idPoligono"));
+                objetoPoligono.setCoodernadasPoligono(jsonPoligono.getString("coodernadasPoligono"));
+                objetoPoligono.setClassePoligono(objetoClasse);
+                objetoPoligono.setMapaPoligono(objetoMapa);
+
+                poligonos.add(objetoPoligono);
+            }
+
+        } catch (JSONException e) {
+            Log.e("Erro", "Erro no parsing do JSON", e);
+        }
+        return poligonos;
     }
 
     @Override
@@ -98,4 +160,8 @@ public class Principal extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    //DOWNLOAD DADOS WEBSERVICE
+
+
 }
