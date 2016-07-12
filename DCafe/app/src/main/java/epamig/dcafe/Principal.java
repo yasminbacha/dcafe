@@ -1,5 +1,6 @@
 package epamig.dcafe;
 
+import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -13,8 +14,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SeekBar;
 
-import com.google.gson.Gson;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.TextHttpResponseHandler;
 
@@ -30,13 +33,40 @@ import epamig.dcafe.model.Classe;
 import epamig.dcafe.model.Mapa;
 import epamig.dcafe.model.Poligono;
 
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
+
+import android.graphics.Color;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.CheckBox;
+import android.widget.SeekBar;
+import android.widget.SeekBar.OnSeekBarChangeListener;
+
+import java.util.Arrays;
+import java.util.List;
+
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+
+
+
 public class Principal extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, OnSeekBarChangeListener,OnMapReadyCallback {
+    public List<Poligono> poligonos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -58,7 +88,13 @@ public class Principal extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //PEGANDO VALORES DO WEBSERVICE
+
+        //INICIO -- Fragmento do mapa
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        //FIM -- Fragmento do mapa
+
+        //INICIO -- PEGANDO VALORES DO WEBSERVICE
         AsyncHttpClient client = new AsyncHttpClient();
         client.get(
                 "http://200.235.94.40/dcafeconverterdados/poligonos.php", new TextHttpResponseHandler() {
@@ -70,12 +106,13 @@ public class Principal extends AppCompatActivity
 
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, String responseString) {
-                        List<Poligono> poligonos = getPoligonos(responseString);
+                        poligonos = getPoligonos(responseString);
                         for (Poligono poligono : poligonos) {
                             Log.i("JSON ",poligono.convertePoligonoParaString(poligono));
                         }
                     }
                 });
+        //FIM -- PEGANDO VALORES DO WEBSERVICE
     }
 
     private List<Poligono> getPoligonos(String jsonString) {
@@ -159,6 +196,26 @@ public class Principal extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
     }
 
     //DOWNLOAD DADOS WEBSERVICE
