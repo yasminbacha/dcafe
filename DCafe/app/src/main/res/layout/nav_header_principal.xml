@@ -9,16 +9,23 @@
     android:theme="@style/ThemeOverlay.AppCompat.Dark" android:orientation="vertical"
     android:gravity="bottom">
 
-    <ImageView android:layout_width="wrap_content" android:layout_height="wrap_content"
+    <ImageView android:layout_width="92dp" android:layout_height="92dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:src="@drawable/logomedio" android:maxWidth="80dp" android:id="@+id/imageView" />
+        android:src="@drawable/logo" android:maxHeight="10dp" android:id="@+id/imageView" />
 
     <TextView
         android:layout_width="match_parent" android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing" android:text="Android Studio"
+        android:paddingTop="@dimen/nav_header_vertical_spacing"
+        android:paddingLeft="5dp"
+        android:text="Nome do Usuario"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
-    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:text="android.studio@android.com" android:id="@+id/textView" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Instituição do usuario"
+        android:id="@+id/textView"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"/>
 
 </LinearLayout>
