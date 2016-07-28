@@ -1,6 +1,6 @@
 package epamig.dcafe;
 
-import android.app.ProgressDialog;
+import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -9,9 +9,12 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -24,17 +27,9 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.TextHttpResponseHandler;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import cz.msebera.android.httpclient.Header;
 import epamig.dcafe.bancodedados.ControlarBanco;
 import epamig.dcafe.model.Poligono;
 
@@ -43,6 +38,9 @@ public class Principal extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
 
     private GoogleMap map;
+    private AlertDialog alerta;
+
+
     //--------------------------------Nome das Classes------------------------------------//
     private static String nomeClasseAgua = "Agua";
     private static String nomeClasseAreaUrbana = "Area_urbana";
@@ -51,11 +49,11 @@ public class Principal extends AppCompatActivity
     private static String nomeClasseOutrosUsos = "Outros_usos";
 
     //--------------------------------Cores das Classes--------------------------------//
-    private static int corClasseAgua = Color.argb(40, 0, 0, 255);
-    private static int corClasseCafe = Color.argb(40, 255, 0, 0);
-    private static int corClasseMata = Color.argb(40, 0, 255, 0);
-    private static int corClasseOutrosUsos = Color.argb(40, 255, 255, 0);
-    private static int corClasseAreaUrbana = Color.argb(40, 225, 61, 255);
+    private static int corClasseAgua = Color.argb(50, 0, 0, 255);
+    private static int corClasseCafe = Color.argb(50, 255, 0, 0);
+    private static int corClasseMata = Color.argb(50, 0, 255, 0);
+    private static int corClasseOutrosUsos = Color.argb(50, 255, 255, 0);
+    private static int corClasseAreaUrbana = Color.argb(50, 225, 61, 255);
 
     //--------------------------------Latitude das cidades--------------------------------//
     public static LatLngBounds SAOLOURENCO = new LatLngBounds(
@@ -66,7 +64,6 @@ public class Principal extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -86,6 +83,53 @@ public class Principal extends AppCompatActivity
         mapFragment.getMapAsync(this);
     }
 
+    //-----------------------------------Funções do dialogo -dermarcar uso da terra---------------//
+    private void alertarCliquePoligono(String idPoligonoSistema) {
+        LayoutInflater li = getLayoutInflater();
+        View view = li.inflate(R.layout.alerta, null);
+        final Button btDemarcar = (Button) view.findViewById(R.id.btEnviar);
+        final RadioButton rbAgua = (RadioButton) view.findViewById(R.id.rbAgua);
+        final RadioButton rbArea_urbana = (RadioButton) view.findViewById(R.id.rbArea_urbana);
+        final RadioButton rbCafe = (RadioButton) view.findViewById(R.id.rbCafe);
+        final RadioButton rbMata = (RadioButton) view.findViewById(R.id.rbMata);
+        final RadioButton rbOutros_usos = (RadioButton) view.findViewById(R.id.rbOutros_usos);
+
+        ControlarBanco bd = new ControlarBanco(getBaseContext());
+        int idClasse = bd.SelecionaridClassePoligonoPorIdPoligonoSistema(idPoligonoSistema);
+        String nomeClasseAtual = bd.selecionarNomeClassePorId(idClasse);
+        final int idPoligono = bd.SelecionaridPoligonoPorIdPoligonoSistema(idPoligonoSistema);
+
+        btDemarcar.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                //TODO: salvar demarcação
+                String nomeClasse = "";
+                if (rbAgua.isChecked()) {
+                    nomeClasse = nomeClasseAgua;
+                } else if (rbCafe.isChecked()) {
+                    nomeClasse = nomeClasseCafe;
+                } else if (rbArea_urbana.isChecked()) {
+                    nomeClasse = nomeClasseAreaUrbana;
+                } else if (rbMata.isChecked()) {
+                    nomeClasse = nomeClasseMata;
+                } else if (rbOutros_usos.isChecked()) {
+                    nomeClasse = nomeClasseOutrosUsos;
+                }
+                Toast.makeText(getApplicationContext(), "Classe:"+nomeClasse+" IdPoligono: "+idPoligono, Toast.LENGTH_SHORT).show();
+                alerta.dismiss();
+            }
+        });
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        if (nomeClasseAtual.equals(nomeClasseOutrosUsos)) {
+            nomeClasseAtual = "Outros";
+        } else if (nomeClasseAtual.equals(nomeClasseAreaUrbana)) {
+            nomeClasseAtual = "Area Urbana";
+        }
+        builder.setTitle("Uso da área: " + nomeClasseAtual);
+        builder.setView(view);
+        alerta = builder.create();
+        alerta.show();
+    }
 
     //-----------------------------------Funções do MAPA------------------------------------------//
     @Override
@@ -101,62 +145,57 @@ public class Principal extends AppCompatActivity
 
         //----------------------------pegar a lista por Classe------------------------------------//
         ControlarBanco bd = new ControlarBanco(getBaseContext());
-        List<String> Poligonos = bd.ListarTodosPoligonos();
+        List<Poligono> Poligonos = bd.ListarTodosPoligonosObjetos();
         int quant = Poligonos.size();
 
-        Log.i("Quantidade Principal", "q: " + quant);
-
         for (int i = 0; i < quant; i++) {
-            //cada poligono
-            List<LatLng> LatLong = criarPoligono(Poligonos.get(i));
-
-            //Criar os poligonos no mapa
-            //TODO Trazer a cor e pesquisar a classe e defini-la
-
-            int corClasse = corClasseMata;
-
-            // Poligonos.get(i).getClassePoligono()
+            List<LatLng> LatLong = criarPoligono(Poligonos.get(i).getCoodernadasPoligono());
+            String Classe = bd.selecionarNomeClassePorId(Poligonos.get(i).getClassePoligono());
+            int corClasse = -1;
+            if (Classe.equals(nomeClasseAgua)) {
+                corClasse = corClasseAgua;
+            } else if (Classe.equals(nomeClasseAreaUrbana)) {
+                corClasse = corClasseAreaUrbana;
+            } else if (Classe.equals(nomeClasseCafe)) {
+                corClasse = corClasseCafe;
+            } else if (Classe.equals(nomeClasseOutrosUsos)) {
+                corClasse = corClasseOutrosUsos;
+            } else if (Classe.equals(nomeClasseMata)) {
+                corClasse = corClasseMata;
+            }
 
             Polygon mClickablePolygonWithHoles = map.addPolygon(new PolygonOptions()
                     .addAll(LatLong)
                     .fillColor(corClasse)
                     .strokeColor(Color.BLACK)
-                    .strokeWidth(5)
+                    .strokeWidth(3)
                     .clickable(true));
 
-            //Vou atualizar com esse ID no banco
-            Log.i("Teste", mClickablePolygonWithHoles.getId());
-
+            bd.alteraidPoligonoSistema(Poligonos.get(i).getIdPoligono(), mClickablePolygonWithHoles.getId());
         }
+        //TODO: Fazer um select de cidade e mover para tal
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(SAOLOURENCO.getCenter(), 15));
+
         map.setOnPolygonClickListener(new GoogleMap.OnPolygonClickListener() {
             @Override
             public void onPolygonClick(Polygon polygon) {
                 int strokeColor = polygon.getStrokeColor() ^ 0x00ffffff;
                 polygon.setStrokeColor(strokeColor);
-                Log.i("POLIGONO", polygon.getId());
-                Toast.makeText(getApplicationContext(), "teste", Toast.LENGTH_SHORT).show();
+                alertarCliquePoligono(polygon.getId());
             }
         });
     }
 
     private List<LatLng> criarPoligono(String poligono) {
         List<LatLng> poligonoList = new ArrayList<>();
-        //TODO vou pegar cada classe por vez
-        //TODO Para ter as mesmas caracteristicas
-
-
         int posicaoInicio = poligono.indexOf("((") + 2;
         int posicaoFinal = poligono.indexOf(")");
         String coodernadas = poligono.substring(posicaoInicio, posicaoFinal);
         String[] vetorCoodernadas = coodernadas.split(",");
-
-
         for (int i = 0; i < vetorCoodernadas.length; i++) {
             String[] latlong = vetorCoodernadas[i].split(" ");
             Double longi = Double.parseDouble(latlong[0]);
             Double lat = Double.parseDouble(latlong[1]);
-
             poligonoList.add(new LatLng(lat, longi));
         }
         return poligonoList;
