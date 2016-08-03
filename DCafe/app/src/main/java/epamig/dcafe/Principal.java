@@ -13,8 +13,11 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.RadioButton;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -39,6 +42,12 @@ public class Principal extends AppCompatActivity
 
     private GoogleMap map;
     private AlertDialog alerta;
+    private Spinner spCidades;
+
+    public ControlarBanco bd;
+    int check = 0;
+
+    private static String CIDADEINICIAL = "Baependi";
 
 
     //--------------------------------Nome das Classes------------------------------------//
@@ -55,15 +64,15 @@ public class Principal extends AppCompatActivity
     private static int corClasseOutrosUsos = Color.argb(50, 255, 255, 0);
     private static int corClasseAreaUrbana = Color.argb(50, 225, 61, 255);
 
-    //--------------------------------Latitude das cidades--------------------------------//
-    public static LatLngBounds SAOLOURENCO = new LatLngBounds(
-            new LatLng(-22.15315891534319, -45.03161494543304),
-            new LatLng(-22.15315891534319, -45.03161494543304));
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
+
+        //----------------Iniciar BANCO---------------------------------------------------------//
+        bd = new ControlarBanco(getBaseContext());
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -81,6 +90,35 @@ public class Principal extends AppCompatActivity
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        //------------------------------Preencher Spinner Cidades---------------------------------//
+
+        final List<String> Cidades = bd.ListarTodasAsCidades();
+        spCidades = (Spinner) findViewById(R.id.spCidades);
+
+        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, Cidades);
+        ArrayAdapter<String> spinnerArrayAdapter = arrayAdapter;
+        spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
+        spCidades.setAdapter(spinnerArrayAdapter);
+        spCidades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View v, int posicao, long id) {
+                String Cidade = parent.getItemAtPosition(posicao).toString();
+                check = check + 1;
+                if (check > 1) {
+                    //----------------------------pegar a lista----------------------------------------------//
+                    colocarPoligonosnoMapa(Cidade);
+                    //----------------------------Mover para cidade-------------------------------------------//
+                    LatLngBounds CidadeAtual = pegarCidadeAtual(Cidade);
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(CidadeAtual.getCenter(), 14));
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
 
     //-----------------------------------Funções do dialogo -dermarcar uso da terra---------------//
@@ -94,7 +132,6 @@ public class Principal extends AppCompatActivity
         final RadioButton rbMata = (RadioButton) view.findViewById(R.id.rbMata);
         final RadioButton rbOutros_usos = (RadioButton) view.findViewById(R.id.rbOutros_usos);
 
-        ControlarBanco bd = new ControlarBanco(getBaseContext());
         int idClasse = bd.SelecionaridClassePoligonoPorIdPoligonoSistema(idPoligonoSistema);
         String nomeClasseAtual = bd.selecionarNomeClassePorId(idClasse);
         final int idPoligono = bd.SelecionaridPoligonoPorIdPoligonoSistema(idPoligonoSistema);
@@ -114,7 +151,7 @@ public class Principal extends AppCompatActivity
                 } else if (rbOutros_usos.isChecked()) {
                     nomeClasse = nomeClasseOutrosUsos;
                 }
-                Toast.makeText(getApplicationContext(), "Classe:"+nomeClasse+" IdPoligono: "+idPoligono, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Classe:" + nomeClasse + " IdPoligono: " + idPoligono, Toast.LENGTH_SHORT).show();
                 alerta.dismiss();
             }
         });
@@ -143,38 +180,12 @@ public class Principal extends AppCompatActivity
         uiSettings.setZoomControlsEnabled(true);
         uiSettings.setMyLocationButtonEnabled(true);
 
-        //----------------------------pegar a lista por Classe------------------------------------//
-        ControlarBanco bd = new ControlarBanco(getBaseContext());
-        List<Poligono> Poligonos = bd.ListarTodosPoligonosObjetos();
-        int quant = Poligonos.size();
+        //----------------------------pegar a lista----------------------------------------------//
+        colocarPoligonosnoMapa(CIDADEINICIAL);
+        LatLngBounds CidadeAtual = pegarCidadeAtual(CIDADEINICIAL);
 
-        for (int i = 0; i < quant; i++) {
-            List<LatLng> LatLong = criarPoligono(Poligonos.get(i).getCoodernadasPoligono());
-            String Classe = bd.selecionarNomeClassePorId(Poligonos.get(i).getClassePoligono());
-            int corClasse = -1;
-            if (Classe.equals(nomeClasseAgua)) {
-                corClasse = corClasseAgua;
-            } else if (Classe.equals(nomeClasseAreaUrbana)) {
-                corClasse = corClasseAreaUrbana;
-            } else if (Classe.equals(nomeClasseCafe)) {
-                corClasse = corClasseCafe;
-            } else if (Classe.equals(nomeClasseOutrosUsos)) {
-                corClasse = corClasseOutrosUsos;
-            } else if (Classe.equals(nomeClasseMata)) {
-                corClasse = corClasseMata;
-            }
-
-            Polygon mClickablePolygonWithHoles = map.addPolygon(new PolygonOptions()
-                    .addAll(LatLong)
-                    .fillColor(corClasse)
-                    .strokeColor(Color.BLACK)
-                    .strokeWidth(3)
-                    .clickable(true));
-
-            bd.alteraidPoligonoSistema(Poligonos.get(i).getIdPoligono(), mClickablePolygonWithHoles.getId());
-        }
-        //TODO: Fazer um select de cidade e mover para tal
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(SAOLOURENCO.getCenter(), 15));
+        //----------------------------Mover para cidade-------------------------------------------//
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(CidadeAtual.getCenter(), 14));
 
         map.setOnPolygonClickListener(new GoogleMap.OnPolygonClickListener() {
             @Override
@@ -184,6 +195,50 @@ public class Principal extends AppCompatActivity
                 alertarCliquePoligono(polygon.getId());
             }
         });
+    }
+
+    private void colocarPoligonosnoMapa(String cidade) {
+        List<Poligono> Poligonos = bd.ListarTodosPoligonosObjetosCidade(cidade);
+        int quant = Poligonos.size();
+        if (quant > 0) {
+            for (int i = 0; i < quant; i++) {
+                List<LatLng> LatLong = criarPoligono(Poligonos.get(i).getCoodernadasPoligono());
+                String Classe = bd.selecionarNomeClassePorId(Poligonos.get(i).getClassePoligono());
+                int corClasse = pegarCorClasse(Classe);
+                Polygon mClickablePolygonWithHoles = map.addPolygon(new PolygonOptions()
+                        .addAll(LatLong)
+                        .fillColor(corClasse)
+                        .strokeColor(Color.BLACK)
+                        .strokeWidth(3)
+                        .clickable(true));
+
+                bd.alteraidPoligonoSistema(Poligonos.get(i).getIdPoligono(), mClickablePolygonWithHoles.getId());
+            }
+        }
+    }
+
+    private int pegarCorClasse(String Classe) {
+        int corClasse = -1;
+        if (Classe.equals(nomeClasseAgua)) {
+            corClasse = corClasseAgua;
+        } else if (Classe.equals(nomeClasseAreaUrbana)) {
+            corClasse = corClasseAreaUrbana;
+        } else if (Classe.equals(nomeClasseCafe)) {
+            corClasse = corClasseCafe;
+        } else if (Classe.equals(nomeClasseOutrosUsos)) {
+            corClasse = corClasseOutrosUsos;
+        } else if (Classe.equals(nomeClasseMata)) {
+            corClasse = corClasseMata;
+        }
+        return corClasse;
+    }
+
+    private LatLngBounds pegarCidadeAtual(String Cidade) {
+        String coodernadaDaCidade = bd.SelecionarCoodernadaParaCidade(Cidade);
+        List<LatLng> ll = criarPoligono(coodernadaDaCidade);
+        LatLng LatLong = ll.get(2);
+
+        return new LatLngBounds(LatLong, LatLong);
     }
 
     private List<LatLng> criarPoligono(String poligono) {
@@ -266,6 +321,5 @@ public class Principal extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 
 }
