@@ -1,6 +1,10 @@
 package epamig.dcafe;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -49,6 +53,7 @@ public class Principal extends AppCompatActivity
 
     private static String CIDADEINICIAL = "Baependi";
 
+    ProgressDialog progress;
 
     //--------------------------------Nome das Classes------------------------------------//
     private static String nomeClasseAgua = "Agua";
@@ -198,6 +203,10 @@ public class Principal extends AppCompatActivity
     }
 
     private void colocarPoligonosnoMapa(String cidade) {
+        //TODO
+         progress = ProgressDialog.show(this, "dialog title",
+                "dialog message", true);
+
         List<Poligono> Poligonos = bd.ListarTodosPoligonosObjetosCidade(cidade);
         int quant = Poligonos.size();
         if (quant > 0) {
@@ -215,6 +224,8 @@ public class Principal extends AppCompatActivity
                 bd.alteraidPoligonoSistema(Poligonos.get(i).getIdPoligono(), mClickablePolygonWithHoles.getId());
             }
         }
+        //TODO
+        progress.dismiss();
     }
 
     private int pegarCorClasse(String Classe) {
@@ -311,10 +322,17 @@ public class Principal extends AppCompatActivity
 
         } else if (id == R.id.nav_manage) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        } else if (id == R.id.nav_sobre) {
+            Intent intent = new Intent();
+            intent.setClass(Principal.this, SobreActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_sair) {
+            SharedPreferences settings = getSharedPreferences(getString(R.string.preferences), Context.MODE_PRIVATE);
+            settings.edit().clear().commit();
+            finish();
+            Intent intent = new Intent();
+            intent.setClass(Principal.this, LoginActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

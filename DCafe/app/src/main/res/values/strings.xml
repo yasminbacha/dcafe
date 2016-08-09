@@ -8,7 +8,7 @@
     <string name="title_activity_maps">Map</string>
 
 
-<!-- DAQUI PRA BAIXO-->
+    <!-- DAQUI PRA BAIXO-->
     <string name="demo_title">Google Maps API Demos</string>
     <string name="legal_info">Legal Info</string>
     <string name="no_demos">No demos</string>
@@ -208,9 +208,15 @@
         completions."
     </string>
 
+    <string name="atividade_extensionista">Extensionista</string>
+    <string name="atividade_epamig">Funcionário da Epamig</string>
+    <string name="atividade_geosolos">Funcionário da Geosolos</string>
+    <string name="atividade_cafeicultor">Cafeicultor</string>
+    <string name="atividade_cooperativa">Cooperativa</string>
+    <string name="atividade_outra">Outra</string>
+    <string name="title_activity_sobre">SobreActivity</string>
 
-
-
+    <string name="preferences">Preferences</string>
 
 
 </resources>
