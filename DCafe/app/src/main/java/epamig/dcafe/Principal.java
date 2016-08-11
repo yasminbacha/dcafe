@@ -51,9 +51,9 @@ public class Principal extends AppCompatActivity
     public ControlarBanco bd;
     int check = 0;
 
-    private static String CIDADEINICIAL = "Baependi";
+    private static String CIDADEINICIAL = "Brazopolis";
 
-    ProgressDialog progress;
+    ProgressDialog mDialog;
 
     //--------------------------------Nome das Classes------------------------------------//
     private static String nomeClasseAgua = "Agua";
@@ -74,6 +74,11 @@ public class Principal extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
+        //Progress dialog
+        mDialog = new ProgressDialog(this);
+        mDialog.setMessage("Sincronizando os dados. Aguarde um momento.");
+        mDialog.setCancelable(false);
+
 
         //----------------Iniciar BANCO---------------------------------------------------------//
         bd = new ControlarBanco(getBaseContext());
@@ -111,8 +116,13 @@ public class Principal extends AppCompatActivity
                 String Cidade = parent.getItemAtPosition(posicao).toString();
                 check = check + 1;
                 if (check > 1) {
+                    //------------------------Limpar Mapa-----------------------------------------------------//
+                    map.clear();
+
                     //----------------------------pegar a lista----------------------------------------------//
+                    mDialog.show();
                     colocarPoligonosnoMapa(Cidade);
+                    mDialog.dismiss();
                     //----------------------------Mover para cidade-------------------------------------------//
                     LatLngBounds CidadeAtual = pegarCidadeAtual(Cidade);
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(CidadeAtual.getCenter(), 14));
@@ -203,10 +213,6 @@ public class Principal extends AppCompatActivity
     }
 
     private void colocarPoligonosnoMapa(String cidade) {
-        //TODO
-         progress = ProgressDialog.show(this, "dialog title",
-                "dialog message", true);
-
         List<Poligono> Poligonos = bd.ListarTodosPoligonosObjetosCidade(cidade);
         int quant = Poligonos.size();
         if (quant > 0) {
@@ -224,8 +230,6 @@ public class Principal extends AppCompatActivity
                 bd.alteraidPoligonoSistema(Poligonos.get(i).getIdPoligono(), mClickablePolygonWithHoles.getId());
             }
         }
-        //TODO
-        progress.dismiss();
     }
 
     private int pegarCorClasse(String Classe) {
