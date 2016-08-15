@@ -1,18 +1,24 @@
 package epamig.dcafe;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -20,6 +26,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
 import android.widget.Toast;
@@ -42,7 +49,11 @@ import epamig.dcafe.model.Poligono;
 
 
 public class Principal extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback {
+        implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
+        ActivityCompat.OnRequestPermissionsResultCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener
+
+
+{
 
     private GoogleMap map;
     private AlertDialog alerta;
@@ -53,14 +64,8 @@ public class Principal extends AppCompatActivity
 
     private static String CIDADEINICIAL = "Brazopolis";
 
-    ProgressDialog mDialog;
+    ProgressDialog dialog;
 
-    //--------------------------------Nome das Classes------------------------------------//
-    private static String nomeClasseAgua = "Agua";
-    private static String nomeClasseAreaUrbana = "Area_urbana";
-    private static String nomeClasseCafe = "Cafe";
-    private static String nomeClasseMata = "Mata";
-    private static String nomeClasseOutrosUsos = "Outros_usos";
 
     //--------------------------------Cores das Classes--------------------------------//
     private static int corClasseAgua = Color.argb(50, 0, 0, 255);
@@ -70,16 +75,17 @@ public class Principal extends AppCompatActivity
     private static int corClasseAreaUrbana = Color.argb(50, 225, 61, 255);
 
 
+    /****************************
+     * Pegar localização atual
+     */
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
+    private boolean mPermissionDenied = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
         //Progress dialog
-        mDialog = new ProgressDialog(this);
-        mDialog.setMessage("Sincronizando os dados. Aguarde um momento.");
-        mDialog.setCancelable(false);
-
-
         //----------------Iniciar BANCO---------------------------------------------------------//
         bd = new ControlarBanco(getBaseContext());
 
@@ -113,16 +119,26 @@ public class Principal extends AppCompatActivity
         spCidades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View v, int posicao, long id) {
-                String Cidade = parent.getItemAtPosition(posicao).toString();
+                final String Cidade = parent.getItemAtPosition(posicao).toString();
                 check = check + 1;
                 if (check > 1) {
-                    //------------------------Limpar Mapa-----------------------------------------------------//
-                    map.clear();
 
                     //----------------------------pegar a lista----------------------------------------------//
-                    mDialog.show();
-                    colocarPoligonosnoMapa(Cidade);
-                    mDialog.dismiss();
+                 /*   dialog = ProgressDialog.show(Principal.this,"Aguarde","Sincronizando as áreas", false, true);
+                    dialog.setCancelable(false);
+                    new Thread() {
+                        public void run() {
+                            try {*/
+                    //------------------------Limpar Mapa-----------------------------------------------------//
+                    map.clear();
+                    //TODO colocarPoligonosnoMapa(Cidade);
+                               /* dialog.dismiss();
+                            }catch (Exception e) {
+                                Log.i("ERRO POLIGONOS NO MAPA", e.toString());
+
+                            }
+                        }
+                    }.start();*/
                     //----------------------------Mover para cidade-------------------------------------------//
                     LatLngBounds CidadeAtual = pegarCidadeAtual(Cidade);
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(CidadeAtual.getCenter(), 14));
@@ -140,41 +156,60 @@ public class Principal extends AppCompatActivity
     private void alertarCliquePoligono(String idPoligonoSistema) {
         LayoutInflater li = getLayoutInflater();
         View view = li.inflate(R.layout.alerta, null);
-        final Button btDemarcar = (Button) view.findViewById(R.id.btEnviar);
+        final Button btConcluir = (Button) view.findViewById(R.id.btConcluir);
+        final Button btDemarcar = (Button) view.findViewById(R.id.btMarcarNovamente);
+        final EditText edtComentarios = (EditText) view.findViewById(R.id.edtComentarios);
         final RadioButton rbAgua = (RadioButton) view.findViewById(R.id.rbAgua);
         final RadioButton rbArea_urbana = (RadioButton) view.findViewById(R.id.rbArea_urbana);
         final RadioButton rbCafe = (RadioButton) view.findViewById(R.id.rbCafe);
         final RadioButton rbMata = (RadioButton) view.findViewById(R.id.rbMata);
         final RadioButton rbOutros_usos = (RadioButton) view.findViewById(R.id.rbOutros_usos);
+        final RadioButton rbUsoCorreto = (RadioButton) view.findViewById(R.id.rbUso_correto);
 
         int idClasse = bd.SelecionaridClassePoligonoPorIdPoligonoSistema(idPoligonoSistema);
         String nomeClasseAtual = bd.selecionarNomeClassePorId(idClasse);
         final int idPoligono = bd.SelecionaridPoligonoPorIdPoligonoSistema(idPoligonoSistema);
 
-        btDemarcar.setOnClickListener(new View.OnClickListener() {
+        String nomeClasse = "";
+        if (rbAgua.isChecked()) {
+            nomeClasse = getString(R.string.nomeClasseAgua);
+        } else if (rbCafe.isChecked()) {
+            nomeClasse = getString(R.string.nomeClasseCafe);
+        } else if (rbArea_urbana.isChecked()) {
+            nomeClasse = getString(R.string.nomeClasseAreaUrbana);
+        } else if (rbMata.isChecked()) {
+            nomeClasse = getString(R.string.nomeClasseMata);
+        } else if (rbOutros_usos.isChecked()) {
+            nomeClasse = getString(R.string.nomeClasseOutrosUsos);
+        } else if (rbUsoCorreto.isChecked()) {
+            nomeClasse = getString(R.string.nomeUsoCorreto);
+        }
+        final String classe = nomeClasse;
+
+        btConcluir.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
                 //TODO: salvar demarcação
-                String nomeClasse = "";
-                if (rbAgua.isChecked()) {
-                    nomeClasse = nomeClasseAgua;
-                } else if (rbCafe.isChecked()) {
-                    nomeClasse = nomeClasseCafe;
-                } else if (rbArea_urbana.isChecked()) {
-                    nomeClasse = nomeClasseAreaUrbana;
-                } else if (rbMata.isChecked()) {
-                    nomeClasse = nomeClasseMata;
-                } else if (rbOutros_usos.isChecked()) {
-                    nomeClasse = nomeClasseOutrosUsos;
-                }
-                Toast.makeText(getApplicationContext(), "Classe:" + nomeClasse + " IdPoligono: " + idPoligono, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Classe:" + classe + " IdPoligono: " + idPoligono, Toast.LENGTH_SHORT).show();
                 alerta.dismiss();
             }
         });
 
+        btDemarcar.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                //TODO: salvar demarcação
+                alerta.dismiss();
+
+                Intent intent = new Intent();
+                intent.setClass(Principal.this, DemarcarPoligonoActivity.class);
+                intent.putExtra("idPoligono", idPoligono);
+                startActivity(intent);
+            }
+        });
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        if (nomeClasseAtual.equals(nomeClasseOutrosUsos)) {
+        if (nomeClasseAtual.equals(getString(R.string.nomeClasseOutrosUsos))) {
             nomeClasseAtual = "Outros";
-        } else if (nomeClasseAtual.equals(nomeClasseAreaUrbana)) {
+        } else if (nomeClasseAtual.equals(getString(R.string.nomeClasseAreaUrbana))) {
             nomeClasseAtual = "Area Urbana";
         }
         builder.setTitle("Uso da área: " + nomeClasseAtual);
@@ -187,6 +222,9 @@ public class Principal extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap Mmap) {
         map = Mmap;
+
+        map.setOnMyLocationButtonClickListener(this);
+        permitirMinhaLocalizacao();
         map.setContentDescription("Google Map com poligonos");
         map.setMapType(map.MAP_TYPE_HYBRID);
 
@@ -210,7 +248,73 @@ public class Principal extends AppCompatActivity
                 alertarCliquePoligono(polygon.getId());
             }
         });
+
+        map.setOnMapLongClickListener(this);
+        map.setOnMapClickListener(this);
+
+        Toast.makeText(Principal.this, MinhaCidade(), Toast.LENGTH_LONG).show();
     }
+
+    //--------------------PERMITIR MINHA LOCALIZAÇÂO----------------------------------------//
+    private void permitirMinhaLocalizacao() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            // Permission to access the location is missing.
+            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION, true);
+        } else if (map != null) {
+            // Access to the location has been granted to the app.
+            map.setMyLocationEnabled(true);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+            return;
+        }
+
+        if (PermissionUtils.isPermissionGranted(permissions, grantResults,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // Enable the my location layer if the permission has been granted.
+            permitirMinhaLocalizacao();
+        } else {
+            // Display the missing permission error dialog when the fragments resume.
+            mPermissionDenied = true;
+        }
+    }
+
+    @Override
+    protected void onResumeFragments() {
+        super.onResumeFragments();
+        if (mPermissionDenied) {
+            // Permission was not granted, display error dialog.
+            showMissingPermissionError();
+            mPermissionDenied = false;
+        }
+    }
+
+    private void showMissingPermissionError() {
+        PermissionUtils.PermissionDeniedDialog
+                .newInstance(true).show(getSupportFragmentManager(), "dialog");
+    }
+
+    @Override
+    public boolean onMyLocationButtonClick() {
+        Toast.makeText(Principal.this, MinhaCidade(), Toast.LENGTH_LONG).show();
+        return false;
+    }
+
+    public String MinhaCidade() {
+        double lat = -1, lng = -1;
+        if (map.getMyLocation() != null) {
+            lat = map.getMyLocation().getLatitude();
+            lng = map.getMyLocation().getLongitude();
+        }
+        return "Latitude: " + lat + " Longitude: " + lng;
+    }
+    //-------------------------------------------------------------------------------------------//
 
     private void colocarPoligonosnoMapa(String cidade) {
         List<Poligono> Poligonos = bd.ListarTodosPoligonosObjetosCidade(cidade);
@@ -234,15 +338,15 @@ public class Principal extends AppCompatActivity
 
     private int pegarCorClasse(String Classe) {
         int corClasse = -1;
-        if (Classe.equals(nomeClasseAgua)) {
+        if (Classe.equals(getString(R.string.nomeClasseAgua))) {
             corClasse = corClasseAgua;
-        } else if (Classe.equals(nomeClasseAreaUrbana)) {
+        } else if (Classe.equals(getString(R.string.nomeClasseAreaUrbana))) {
             corClasse = corClasseAreaUrbana;
-        } else if (Classe.equals(nomeClasseCafe)) {
+        } else if (Classe.equals(getString(R.string.nomeClasseCafe))) {
             corClasse = corClasseCafe;
-        } else if (Classe.equals(nomeClasseOutrosUsos)) {
+        } else if (Classe.equals(getString(R.string.nomeClasseOutrosUsos))) {
             corClasse = corClasseOutrosUsos;
-        } else if (Classe.equals(nomeClasseMata)) {
+        } else if (Classe.equals(getString(R.string.nomeClasseMata))) {
             corClasse = corClasseMata;
         }
         return corClasse;
@@ -315,17 +419,10 @@ public class Principal extends AppCompatActivity
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
-
-        if (id == R.id.nav_camara) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
+        if (id == R.id.nav_demarcacoes) {
+            //TODO
+            Toast.makeText(Principal.this, "Listar minhas demarcações", Toast.LENGTH_LONG).show();
         } else if (id == R.id.nav_sobre) {
             Intent intent = new Intent();
             intent.setClass(Principal.this, SobreActivity.class);
@@ -338,10 +435,20 @@ public class Principal extends AppCompatActivity
             intent.setClass(Principal.this, LoginActivity.class);
             startActivity(intent);
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+    @Override
+    public void onMapClick(LatLng latLng) {
+        //TODO
+        Log.i("TESTE", "TESTE");
+    }
+
+    @Override
+    public void onMapLongClick(LatLng latLng) {
+        //TODO
+        Log.i("TESTE", "TESTE");
+    }
 }

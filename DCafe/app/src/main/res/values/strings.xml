@@ -219,4 +219,12 @@
     <string name="preferences">Preferences</string>
 
 
+    <!-- Nome das Classes-->
+    <string name="nomeClasseAgua">Agua</string>
+    <string name="nomeClasseAreaUrbana">Area_urbana</string>
+    <string name="nomeClasseCafe">Cafe</string>
+    <string name="nomeClasseMata">Mata</string>
+    <string name="nomeClasseOutrosUsos">Outros_usos</string>
+    <string name="nomeUsoCorreto">Uso_correto</string>
+
 </resources>

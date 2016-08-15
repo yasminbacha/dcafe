@@ -10,6 +10,7 @@
          location permissions for the 'MyLocation' functionality. 
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <permission
         android:name="your.package.name.permission.MAPS_RECEIVE"
@@ -74,6 +75,8 @@
             android:label="@string/title_activity_cadastro" >
         </activity>
         <activity android:name=".SobreActivity" >
+        </activity>
+        <activity android:name=".DemarcarPoligonoActivity" >
         </activity>
     </application>
 
