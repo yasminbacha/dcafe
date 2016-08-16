@@ -18,13 +18,14 @@
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:paddingLeft="5dp"
         android:text="Nome do Usuario"
+        android:id="@+id/txtNomeUsuario"
         android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Instituição do usuario"
-        android:id="@+id/textView"
+        android:id="@+id/txtProfissaoUsuario"
         android:paddingBottom="5dp"
         android:paddingLeft="5dp"/>
 

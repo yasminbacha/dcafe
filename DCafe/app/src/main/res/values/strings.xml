@@ -227,4 +227,8 @@
     <string name="nomeClasseOutrosUsos">Outros_usos</string>
     <string name="nomeUsoCorreto">Uso_correto</string>
 
+    <!-- Status avaliação -->
+    <string name="naoAvaliado">Nao_avaliado</string>
+
+
 </resources>

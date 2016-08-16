@@ -29,6 +29,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -45,7 +46,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import epamig.dcafe.bancodedados.ControlarBanco;
+import epamig.dcafe.model.Demarcacao;
 import epamig.dcafe.model.Poligono;
+import epamig.dcafe.model.Usuario;
 
 
 public class Principal extends AppCompatActivity
@@ -85,7 +88,6 @@ public class Principal extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
-        //Progress dialog
         //----------------Iniciar BANCO---------------------------------------------------------//
         bd = new ControlarBanco(getBaseContext());
 
@@ -100,6 +102,14 @@ public class Principal extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        //-----------------Preencher nome e profissão do menu lateral-----------------------------//
+        Usuario usuario = getObjetoUsuarioPreferences();
+        View header = navigationView.getHeaderView(0);
+        TextView txtNomeUsuario = (TextView) header.findViewById(R.id.txtNomeUsuario);
+        txtNomeUsuario.setText(usuario.getNomeUsuario());
+        TextView txtProfissaoUsuario = (TextView) header.findViewById(R.id.txtProfissaoUsuario);
+        txtProfissaoUsuario.setText(usuario.getProfissaoUsuario());
 
 
         //----------------------------Fragmento do mapa-------------------------------------------//
@@ -156,9 +166,12 @@ public class Principal extends AppCompatActivity
     private void alertarCliquePoligono(String idPoligonoSistema) {
         LayoutInflater li = getLayoutInflater();
         View view = li.inflate(R.layout.alerta, null);
+
         final Button btConcluir = (Button) view.findViewById(R.id.btConcluir);
         final Button btDemarcar = (Button) view.findViewById(R.id.btMarcarNovamente);
+
         final EditText edtComentarios = (EditText) view.findViewById(R.id.edtComentarios);
+
         final RadioButton rbAgua = (RadioButton) view.findViewById(R.id.rbAgua);
         final RadioButton rbArea_urbana = (RadioButton) view.findViewById(R.id.rbArea_urbana);
         final RadioButton rbCafe = (RadioButton) view.findViewById(R.id.rbCafe);
@@ -166,39 +179,96 @@ public class Principal extends AppCompatActivity
         final RadioButton rbOutros_usos = (RadioButton) view.findViewById(R.id.rbOutros_usos);
         final RadioButton rbUsoCorreto = (RadioButton) view.findViewById(R.id.rbUso_correto);
 
-        int idClasse = bd.SelecionaridClassePoligonoPorIdPoligonoSistema(idPoligonoSistema);
+        final int idClasse = bd.SelecionaridClassePoligonoPorIdPoligonoSistema(idPoligonoSistema);
         String nomeClasseAtual = bd.selecionarNomeClassePorId(idClasse);
+
         final int idPoligono = bd.SelecionaridPoligonoPorIdPoligonoSistema(idPoligonoSistema);
 
-        String nomeClasse = "";
-        if (rbAgua.isChecked()) {
-            nomeClasse = getString(R.string.nomeClasseAgua);
-        } else if (rbCafe.isChecked()) {
-            nomeClasse = getString(R.string.nomeClasseCafe);
-        } else if (rbArea_urbana.isChecked()) {
-            nomeClasse = getString(R.string.nomeClasseAreaUrbana);
-        } else if (rbMata.isChecked()) {
-            nomeClasse = getString(R.string.nomeClasseMata);
-        } else if (rbOutros_usos.isChecked()) {
-            nomeClasse = getString(R.string.nomeClasseOutrosUsos);
-        } else if (rbUsoCorreto.isChecked()) {
-            nomeClasse = getString(R.string.nomeUsoCorreto);
-        }
-        final String classe = nomeClasse;
 
         btConcluir.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                //TODO: salvar demarcação
-                Toast.makeText(getApplicationContext(), "Classe:" + classe + " IdPoligono: " + idPoligono, Toast.LENGTH_SHORT).show();
+                //INSERIR
+                String nomeClasse = "";
+                if (rbAgua.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseAgua);
+                } else if (rbCafe.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseCafe);
+                } else if (rbArea_urbana.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseAreaUrbana);
+                } else if (rbMata.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseMata);
+                } else if (rbOutros_usos.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseOutrosUsos);
+                } else if (rbUsoCorreto.isChecked()) {
+                    nomeClasse = getString(R.string.nomeUsoCorreto);
+                }
+                final String classe = nomeClasse;
+
+                int idClasseSelec;
+                if(classe.equals(getString(R.string.nomeUsoCorreto))){
+                    idClasseSelec = idClasse;
+                }else{
+                    idClasseSelec = bd.selecionarIdClasse(classe);
+                }
+                int idClasseSelecionada = idClasseSelec;
+
+                //preenchendo objeto demarcação
+                final Demarcacao demarcacao = new Demarcacao();
+                demarcacao.setPoligono_idPoligono(idPoligono);
+                demarcacao.setClasse_idClasse(idClasseSelecionada);
+                demarcacao.setUsuario_idUsuario(getIdUsuarioPreferences());
+                demarcacao.setComentariosDemarcacao(edtComentarios.getText().toString());
+                demarcacao.setStatusDemarcacao(getString(R.string.naoAvaliado));
+
+                //Salvar demarcação
+                bd.insereDemarcacao(demarcacao);
+                //Mensagem de salvo com sucesso
+                Toast.makeText(getApplicationContext(), "Sua demarcação de uso foi inserida com sucesso, obrigado por colaborar!", Toast.LENGTH_SHORT).show();
+                //Fechar Dialogo
                 alerta.dismiss();
             }
         });
 
         btDemarcar.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                //TODO: salvar demarcação
-                alerta.dismiss();
+                //INSERIR
+                String nomeClasse = "";
+                if (rbAgua.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseAgua);
+                } else if (rbCafe.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseCafe);
+                } else if (rbArea_urbana.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseAreaUrbana);
+                } else if (rbMata.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseMata);
+                } else if (rbOutros_usos.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseOutrosUsos);
+                } else if (rbUsoCorreto.isChecked()) {
+                    nomeClasse = getString(R.string.nomeUsoCorreto);
+                }
+                final String classe = nomeClasse;
 
+                int idClasseSelec;
+                if(classe.equals(getString(R.string.nomeUsoCorreto))){
+                    idClasseSelec = idClasse;
+                }else{
+                    idClasseSelec = bd.selecionarIdClasse(classe);
+                }
+                int idClasseSelecionada = idClasseSelec;
+
+                //preenchendo objeto demarcação
+                final Demarcacao demarcacao = new Demarcacao();
+                demarcacao.setPoligono_idPoligono(idPoligono);
+                demarcacao.setClasse_idClasse(idClasseSelecionada);
+                demarcacao.setUsuario_idUsuario(getIdUsuarioPreferences());
+                demarcacao.setComentariosDemarcacao(edtComentarios.getText().toString());
+                demarcacao.setStatusDemarcacao(getString(R.string.naoAvaliado));
+
+                //Salvar demarcação
+                bd.insereDemarcacao(demarcacao);
+                //Fechar Dialogo
+                alerta.dismiss();
+                //Ir para a tela de redesenhar
                 Intent intent = new Intent();
                 intent.setClass(Principal.this, DemarcarPoligonoActivity.class);
                 intent.putExtra("idPoligono", idPoligono);
@@ -207,12 +277,14 @@ public class Principal extends AppCompatActivity
         });
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        if (nomeClasseAtual.equals(getString(R.string.nomeClasseOutrosUsos))) {
-            nomeClasseAtual = "Outros";
-        } else if (nomeClasseAtual.equals(getString(R.string.nomeClasseAreaUrbana))) {
-            nomeClasseAtual = "Area Urbana";
+
+        String ClasseExibida = nomeClasseAtual;
+        if (ClasseExibida.equals(getString(R.string.nomeClasseOutrosUsos))) {
+            ClasseExibida = "Outros";
+        } else if (ClasseExibida.equals(getString(R.string.nomeClasseAreaUrbana))) {
+            ClasseExibida = "Area Urbana";
         }
-        builder.setTitle("Uso da área: " + nomeClasseAtual);
+        builder.setTitle("Uso da área: " + ClasseExibida);
         builder.setView(view);
         alerta = builder.create();
         alerta.show();
@@ -222,7 +294,6 @@ public class Principal extends AppCompatActivity
     @Override
     public void onMapReady(GoogleMap Mmap) {
         map = Mmap;
-
         map.setOnMyLocationButtonClickListener(this);
         permitirMinhaLocalizacao();
         map.setContentDescription("Google Map com poligonos");
@@ -251,8 +322,6 @@ public class Principal extends AppCompatActivity
 
         map.setOnMapLongClickListener(this);
         map.setOnMapClickListener(this);
-
-        Toast.makeText(Principal.this, MinhaCidade(), Toast.LENGTH_LONG).show();
     }
 
     //--------------------PERMITIR MINHA LOCALIZAÇÂO----------------------------------------//
@@ -421,8 +490,8 @@ public class Principal extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.nav_demarcacoes) {
-            //TODO
-            Toast.makeText(Principal.this, "Listar minhas demarcações", Toast.LENGTH_LONG).show();
+            Intent intent = new Intent();
+            intent.setClass(Principal.this, ListarDemarcacoesActivity.class);;
         } else if (id == R.id.nav_sobre) {
             Intent intent = new Intent();
             intent.setClass(Principal.this, SobreActivity.class);
@@ -442,13 +511,33 @@ public class Principal extends AppCompatActivity
 
     @Override
     public void onMapClick(LatLng latLng) {
-        //TODO
-        Log.i("TESTE", "TESTE");
+        Log.i("Clique no mapa", "LatLong: " + latLng);
     }
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-        //TODO
-        Log.i("TESTE", "TESTE");
+        Log.i("Longo clique no mapa", "LatLong: "+ latLng);
+    }
+
+    //-------------GET ID USUARIO-----------------//
+    public int getIdUsuarioPreferences() {
+        //Restaura as preferencias gravadas
+        SharedPreferences settings = getSharedPreferences(getString(R.string.preferences), 0);
+        int idUsuario = settings.getInt("idUsuario", 0);
+        return idUsuario;
+    }
+
+    //-------------GET Objeto USUARIO-----------------//
+    public Usuario getObjetoUsuarioPreferences() {
+        //Restaura as preferencias gravadas
+        SharedPreferences settings = getSharedPreferences(getString(R.string.preferences), 0);
+        Usuario usuario = new Usuario();
+        usuario.setIdUsuario(settings.getInt("idUsuario", 0));
+        usuario.setNomeUsuario(settings.getString("nomeUsuario", ""));
+        usuario.setEmailUsuario(settings.getString("nomeUsuario", ""));
+        usuario.setProfissaoUsuario(settings.getString("profissaoUsuario", ""));
+
+
+        return usuario;
     }
 }

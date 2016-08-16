@@ -39,8 +39,7 @@
         <activity
             android:name=".Principal"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar" >
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".SplashActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
@@ -64,19 +63,18 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".SincronizacaoActivity" >
-        </activity>
+        <activity android:name=".SincronizacaoActivity" />
         <activity
             android:name=".LoginActivity"
-            android:label="Entrar" >
-        </activity>
+            android:label="Entrar" />
         <activity
             android:name=".CadastroActivity"
-            android:label="@string/title_activity_cadastro" >
-        </activity>
-        <activity android:name=".SobreActivity" >
-        </activity>
-        <activity android:name=".DemarcarPoligonoActivity" >
+            android:label="@string/title_activity_cadastro" />
+        <activity android:name=".SobreActivity" />
+        <activity
+            android:name=".DemarcarPoligonoActivity"
+            android:label="Redesenhar área" />
+        <activity android:name=".ListarDemarcacoesActivity" >
         </activity>
     </application>
 
