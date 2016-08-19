@@ -76,6 +76,8 @@
             android:label="Redesenhar área" />
         <activity android:name=".ListarDemarcacoesActivity" >
         </activity>
+        <activity android:name=".VisualizarDemarcacao" >
+        </activity>
     </application>
 
 </manifest>

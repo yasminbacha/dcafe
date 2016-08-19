@@ -231,4 +231,7 @@
     <string name="naoAvaliado">Nao_avaliado</string>
 
 
+    <string name="nomeBanco">mapa.db</string>
+
+
 </resources>

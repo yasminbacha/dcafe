@@ -491,7 +491,8 @@ public class Principal extends AppCompatActivity
         int id = item.getItemId();
         if (id == R.id.nav_demarcacoes) {
             Intent intent = new Intent();
-            intent.setClass(Principal.this, ListarDemarcacoesActivity.class);;
+            intent.setClass(Principal.this, ListarDemarcacoesActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_sobre) {
             Intent intent = new Intent();
             intent.setClass(Principal.this, SobreActivity.class);
