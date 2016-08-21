@@ -3,9 +3,11 @@ package epamig.dcafe;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.ContextWrapper;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
@@ -56,6 +58,7 @@ import epamig.dcafe.sistema.Aplicacao;
 
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
+    private AlertDialog alerta;
     Usuario SuperUsuario = new Usuario();
 
     public String IP = new Aplicacao().getIP();
@@ -413,6 +416,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     public static boolean BancoExiste(ContextWrapper context, String dbName) {
         File dbFile = context.getDatabasePath(dbName);
         return dbFile.exists();
+    }
+    private void loginFalhou() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Usuário não cadastrado");
+        builder.setMessage("Cadastr-se primeiro");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface arg0, int arg1) {
+                finish();
+            }
+        });
+        alerta = builder.create();
+        alerta.show();
     }
 }
 

@@ -20,7 +20,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -65,7 +64,7 @@ public class Principal extends AppCompatActivity
     public ControlarBanco bd;
     int check = 0;
 
-    private static String CIDADEINICIAL = "Brazopolis";
+    private static String CIDADEINICIAL = "Heliodora";
 
     ProgressDialog dialog;
 
@@ -134,21 +133,22 @@ public class Principal extends AppCompatActivity
                 if (check > 1) {
 
                     //----------------------------pegar a lista----------------------------------------------//
-                 /*   dialog = ProgressDialog.show(Principal.this,"Aguarde","Sincronizando as áreas", false, true);
+                    dialog = ProgressDialog.show(Principal.this, "Aguarde", "Sincronizando as áreas", false, true);
                     dialog.setCancelable(false);
                     new Thread() {
                         public void run() {
-                            try {*/
-                    //------------------------Limpar Mapa-----------------------------------------------------//
-                    map.clear();
-                    //TODO colocarPoligonosnoMapa(Cidade);
-                               /* dialog.dismiss();
-                            }catch (Exception e) {
+                            try {
+                                //------------------------Limpar Mapa-----------------------------------------------------//
+                                map.clear();
+                                //TODO
+                                colocarPoligonosnoMapa(Cidade);
+                                dialog.dismiss();
+                            } catch (Exception e) {
                                 Log.i("ERRO POLIGONOS NO MAPA", e.toString());
 
                             }
                         }
-                    }.start();*/
+                    }.start();
                     //----------------------------Mover para cidade-------------------------------------------//
                     LatLngBounds CidadeAtual = pegarCidadeAtual(Cidade);
                     map.moveCamera(CameraUpdateFactory.newLatLngZoom(CidadeAtual.getCenter(), 14));
@@ -205,9 +205,9 @@ public class Principal extends AppCompatActivity
                 final String classe = nomeClasse;
 
                 int idClasseSelec;
-                if(classe.equals(getString(R.string.nomeUsoCorreto))){
+                if (classe.equals(getString(R.string.nomeUsoCorreto))) {
                     idClasseSelec = idClasse;
-                }else{
+                } else {
                     idClasseSelec = bd.selecionarIdClasse(classe);
                 }
                 int idClasseSelecionada = idClasseSelec;
@@ -249,9 +249,9 @@ public class Principal extends AppCompatActivity
                 final String classe = nomeClasse;
 
                 int idClasseSelec;
-                if(classe.equals(getString(R.string.nomeUsoCorreto))){
+                if (classe.equals(getString(R.string.nomeUsoCorreto))) {
                     idClasseSelec = idClasse;
-                }else{
+                } else {
                     idClasseSelec = bd.selecionarIdClasse(classe);
                 }
                 int idClasseSelecionada = idClasseSelec;
@@ -462,13 +462,13 @@ public class Principal extends AppCompatActivity
             super.onBackPressed();
         }
     }
-
+/*TIREI MENU
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.principal, menu);
         return true;
-    }
+    }*/
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -517,7 +517,7 @@ public class Principal extends AppCompatActivity
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-        Log.i("Longo clique no mapa", "LatLong: "+ latLng);
+        Log.i("Longo clique no mapa", "LatLong: " + latLng);
     }
 
     //-------------GET ID USUARIO-----------------//

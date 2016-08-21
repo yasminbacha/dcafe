@@ -17,7 +17,7 @@ import java.util.TimerTask;
 public class SplashActivity extends AppCompatActivity {
 
     private AlertDialog alerta;
-    private static  int TEMPO = 1000;
+    private static  int TEMPO = 1500;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

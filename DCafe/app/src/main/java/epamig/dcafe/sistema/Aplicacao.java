@@ -7,7 +7,7 @@ import android.app.Application;
 
 public class Aplicacao  extends Application {
 
-    private String IP ="http://honeycode.com.br/demarcafe/";;
+    private String IP ="http://192.168.0.105:8080/demarcafe/";//"http://honeycode.com.br/demarcafe/";;
 
     //IP
             //"192.168.0.100";
