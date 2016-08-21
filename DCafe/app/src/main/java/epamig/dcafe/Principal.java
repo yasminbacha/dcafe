@@ -103,13 +103,13 @@ public class Principal extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //-----------------Preencher nome e profissão do menu lateral-----------------------------//
+        //-----------------Preencher nome e email do menu lateral-----------------------------//
         Usuario usuario = getObjetoUsuarioPreferences();
         View header = navigationView.getHeaderView(0);
         TextView txtNomeUsuario = (TextView) header.findViewById(R.id.txtNomeUsuario);
         txtNomeUsuario.setText(usuario.getNomeUsuario());
-        TextView txtProfissaoUsuario = (TextView) header.findViewById(R.id.txtProfissaoUsuario);
-        txtProfissaoUsuario.setText(usuario.getProfissaoUsuario());
+        TextView txtEmailUsuario = (TextView) header.findViewById(R.id.txtEmailUsuario);
+        txtEmailUsuario.setText(usuario.getEmailUsuario());
 
 
         //----------------------------Fragmento do mapa-------------------------------------------//

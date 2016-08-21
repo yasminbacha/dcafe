@@ -24,8 +24,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Instituição do usuario"
-        android:id="@+id/txtProfissaoUsuario"
+        android:text="Email do usuario"
+        android:id="@+id/txtEmailUsuario"
         android:paddingBottom="5dp"
         android:paddingLeft="5dp"/>
 

@@ -63,7 +63,9 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
-        <activity android:name=".SincronizacaoActivity" />
+        <activity android:name=".SincronizacaoActivity"
+            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+
         <activity
             android:name=".LoginActivity"
             android:label="Entrar" />

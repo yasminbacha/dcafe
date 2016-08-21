@@ -1,0 +1,98 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="Ajude-nos e informe o uso dessa área, caso esteja incorreto."
+        android:textColor="@android:color/black" />
+
+    <RadioGroup
+        android:id="@+id/rgClasses"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:padding="10dp">
+
+        <RadioButton
+            android:id="@+id/rbMata"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mata" />
+
+        <RadioButton
+            android:id="@+id/rbCafe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cafe" />
+
+        <RadioButton
+            android:id="@+id/rbArea_urbana"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Area urbana" />
+
+        <RadioButton
+            android:id="@+id/rbAgua"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Agua" />
+
+        <RadioButton
+            android:id="@+id/rbOutros_usos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Outros" />
+
+        <RadioButton
+            android:id="@+id/rbUso_correto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Esse uso está correto"
+            android:checked="true"
+            />
+    </RadioGroup>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <EditText
+            android:id="@+id/edtComentarios"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Comentários"
+            android:imeActionId="@+id/edtComentarios"
+            android:imeActionLabel="Comentarios"
+            android:imeOptions="actionUnspecified"
+            android:inputType="text"
+            android:maxLines="1"
+            android:singleLine="true" />
+    </android.support.design.widget.TextInputLayout>
+
+    <Button
+        android:id="@+id/btMarcarNovamente"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        android:background="@color/colorPrimary"
+        android:padding="10dp"
+        android:text="Desenhar novamente a área" />
+
+    <Button
+        android:id="@+id/btConcluir"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        android:background="@color/colorPrimary"
+        android:padding="10dp"
+        android:text="Concluir" />
+
+</LinearLayout>
