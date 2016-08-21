@@ -11,7 +11,9 @@
 
     <ImageView android:layout_width="92dp" android:layout_height="92dp"
         android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:src="@drawable/logo" android:maxHeight="10dp" android:id="@+id/imageView" />
+        android:src="@drawable/logo"
+        android:maxHeight="10dp"
+        android:id="@+id/imageView"/>
 
     <TextView
         android:layout_width="match_parent" android:layout_height="wrap_content"

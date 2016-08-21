@@ -17,7 +17,7 @@ import java.util.TimerTask;
 public class SplashActivity extends AppCompatActivity {
 
     private AlertDialog alerta;
-    private static  int TEMPO = 500;
+    private static  int TEMPO = 1000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +26,6 @@ public class SplashActivity extends AppCompatActivity {
         boolean logado = logado();
         boolean conectado = verificaConexao();
 
-        //TODO TESTEEEE DEPOIS EU DESCOMENTO
         if (logado == true) {
             new Timer().schedule(new TimerTask() {
                 @Override

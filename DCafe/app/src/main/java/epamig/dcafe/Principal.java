@@ -535,7 +535,7 @@ public class Principal extends AppCompatActivity
         Usuario usuario = new Usuario();
         usuario.setIdUsuario(settings.getInt("idUsuario", 0));
         usuario.setNomeUsuario(settings.getString("nomeUsuario", ""));
-        usuario.setEmailUsuario(settings.getString("nomeUsuario", ""));
+        usuario.setEmailUsuario(settings.getString("emailUsuario", ""));
         usuario.setProfissaoUsuario(settings.getString("profissaoUsuario", ""));
 
 

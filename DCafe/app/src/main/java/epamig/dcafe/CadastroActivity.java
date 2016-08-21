@@ -63,7 +63,6 @@ public class CadastroActivity extends AppCompatActivity implements LoaderCallbac
     private EditText edtOutraAtividade;
     private EditText edtSenha;
 
-
     private String atividadeProfissional;
     private RadioGroup rgAtividade;
     private View mProgressView;

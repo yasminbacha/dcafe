@@ -76,9 +76,11 @@
         <activity
             android:name=".DemarcarPoligonoActivity"
             android:label="Redesenhar área" />
-        <activity android:name=".ListarDemarcacoesActivity" >
+        <activity android:name=".ListarDemarcacoesActivity"
+            android:label="Minhas demarcações"  >
         </activity>
-        <activity android:name=".VisualizarDemarcacao" >
+        <activity android:name=".VisualizarDemarcacao"
+            android:label="Visualizar demarcação"  >
         </activity>
     </application>
 
