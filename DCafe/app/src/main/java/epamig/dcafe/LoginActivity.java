@@ -29,7 +29,6 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.loopj.android.http.HttpGet;
 
@@ -51,7 +50,6 @@ import java.util.List;
 import cz.msebera.android.httpclient.HttpEntity;
 import cz.msebera.android.httpclient.HttpResponse;
 import cz.msebera.android.httpclient.client.HttpClient;
-import cz.msebera.android.httpclient.client.cache.Resource;
 import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
 import epamig.dcafe.model.Usuario;
 import epamig.dcafe.sistema.Aplicacao;
@@ -63,7 +61,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
     public String IP = new Aplicacao().getIP();
 
-    private String url =  IP + "usuarios.php?email=";
+    private String url = IP + "usuarios.php?email=";
 
 
     private UserLoginTask mAuthTask = null;
@@ -275,22 +273,31 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             SuperUsuario = result;
 
-            String senhaMd5 = md5(mPassword);
-            if (SuperUsuario.getSenhaUsuario().equals(senhaMd5)) {
-                SalvarLogin(SuperUsuario);
-                finish();
-                Intent intent = new Intent();
+            if (SuperUsuario.getSenhaUsuario() == null || SuperUsuario.getSenhaUsuario().isEmpty() || SuperUsuario.getSenhaUsuario().equals("")) {
+                Log.i("TESTE", "T: "+SuperUsuario.getSenhaUsuario());
+
+                mEmailView.setError("Email não cadastrado");
+                mEmailView.requestFocus();
+
+            } else {
+                String senhaMd5 = md5(mPassword);
+                if (SuperUsuario.getSenhaUsuario().equals(senhaMd5)) {
+                    SalvarLogin(SuperUsuario);
+                    finish();
+                    Intent intent = new Intent();
 
               /*  if(BancoExiste(LoginActivity.this, getString(R.string.nomeBanco)) == true){
                     intent.setClass(LoginActivity.this, Principal.class);
                 }else {
-                */    intent.setClass(LoginActivity.this, SincronizacaoActivity.class);
-                //}
-                startActivity(intent);
+                */
+                    intent.setClass(LoginActivity.this, SincronizacaoActivity.class);
+                    //}
+                    startActivity(intent);
 
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
+                } else {
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                }
             }
         }
 
@@ -417,10 +424,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         File dbFile = context.getDatabasePath(dbName);
         return dbFile.exists();
     }
+
     private void loginFalhou() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Usuário não cadastrado");
-        builder.setMessage("Cadastr-se primeiro");
+        builder.setMessage("Cadastre-se primeiro");
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface arg0, int arg1) {
                 finish();

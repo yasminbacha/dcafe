@@ -48,7 +48,8 @@ public class SincronizacaoActivity extends AppCompatActivity {
                     public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                         mDialog.dismiss();
                         //TODO mensagem de erro
-                        Log.i("ERRO", "Erro no download");
+                        String erro = new Exception(throwable).getMessage();
+                        Log.i("ERRO", "Erro no download: "+erro);
                     }
 
                     @Override

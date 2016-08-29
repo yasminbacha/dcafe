@@ -121,8 +121,7 @@ public class Principal extends AppCompatActivity
         final List<String> Cidades = bd.ListarTodasAsCidades();
         spCidades = (Spinner) findViewById(R.id.spCidades);
 
-        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, Cidades);
-        ArrayAdapter<String> spinnerArrayAdapter = arrayAdapter;
+        ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, Cidades);
         spinnerArrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_item);
         spCidades.setAdapter(spinnerArrayAdapter);
         spCidades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -132,26 +131,26 @@ public class Principal extends AppCompatActivity
                 check = check + 1;
                 if (check > 1) {
 
+                    //----------------------------Mover para cidade-------------------------------------------//
+                    LatLngBounds CidadeAtual = pegarCidadeAtual(Cidade);
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(CidadeAtual.getCenter(), 14));
+                    //------------------------Limpar Mapa-----------------------------------------------------//
+                    map.clear();
                     //----------------------------pegar a lista----------------------------------------------//
-                    dialog = ProgressDialog.show(Principal.this, "Aguarde", "Sincronizando as áreas", false, true);
+/*                    dialog = ProgressDialog.show(Principal.this, "Aguarde", "Sincronizando as áreas", false, true);
                     dialog.setCancelable(false);
                     new Thread() {
                         public void run() {
-                            try {
-                                //------------------------Limpar Mapa-----------------------------------------------------//
-                                map.clear();
+                            try {*/
                                 //TODO
                                 colocarPoligonosnoMapa(Cidade);
-                                dialog.dismiss();
+                                /*dialog.dismiss();
                             } catch (Exception e) {
                                 Log.i("ERRO POLIGONOS NO MAPA", e.toString());
 
                             }
                         }
-                    }.start();
-                    //----------------------------Mover para cidade-------------------------------------------//
-                    LatLngBounds CidadeAtual = pegarCidadeAtual(Cidade);
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(CidadeAtual.getCenter(), 14));
+                    }.start();*/
                 }
             }
 
@@ -297,7 +296,7 @@ public class Principal extends AppCompatActivity
         map.setOnMyLocationButtonClickListener(this);
         permitirMinhaLocalizacao();
         map.setContentDescription("Google Map com poligonos");
-        map.setMapType(map.MAP_TYPE_HYBRID);
+        map.setMapType(GoogleMap.MAP_TYPE_HYBRID);
 
         UiSettings uiSettings = map.getUiSettings();
         uiSettings.setCompassEnabled(true);
@@ -371,7 +370,7 @@ public class Principal extends AppCompatActivity
 
     @Override
     public boolean onMyLocationButtonClick() {
-        Toast.makeText(Principal.this, MinhaCidade(), Toast.LENGTH_LONG).show();
+       // Toast.makeText(Principal.this, MinhaCidade(), Toast.LENGTH_LONG).show();
         return false;
     }
 
@@ -435,8 +434,8 @@ public class Principal extends AppCompatActivity
         int posicaoFinal = poligono.indexOf(")");
         String coodernadas = poligono.substring(posicaoInicio, posicaoFinal);
         String[] vetorCoodernadas = coodernadas.split(",");
-        for (int i = 0; i < vetorCoodernadas.length; i++) {
-            String[] latlong = vetorCoodernadas[i].split(" ");
+        for (String codernadas  : vetorCoodernadas) {
+            String[] latlong = codernadas.split(" ");
             Double longi = Double.parseDouble(latlong[0]);
             Double lat = Double.parseDouble(latlong[1]);
             poligonoList.add(new LatLng(lat, longi));
@@ -524,8 +523,7 @@ public class Principal extends AppCompatActivity
     public int getIdUsuarioPreferences() {
         //Restaura as preferencias gravadas
         SharedPreferences settings = getSharedPreferences(getString(R.string.preferences), 0);
-        int idUsuario = settings.getInt("idUsuario", 0);
-        return idUsuario;
+        return settings.getInt("idUsuario", 0);
     }
 
     //-------------GET Objeto USUARIO-----------------//
