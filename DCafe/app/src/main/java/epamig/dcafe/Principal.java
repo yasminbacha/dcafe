@@ -64,8 +64,8 @@ public class Principal extends AppCompatActivity
     public ControlarBanco bd;
     int check = 0;
 
-    private static String CIDADEINICIAL = "Heliodora";
-
+    private static String CIDADEINICIAL = "Lavras";
+//TODO sempre trocar
     ProgressDialog dialog;
 
 
@@ -74,7 +74,7 @@ public class Principal extends AppCompatActivity
     private static int corClasseCafe = Color.argb(50, 255, 0, 0);
     private static int corClasseMata = Color.argb(50, 0, 255, 0);
     private static int corClasseOutrosUsos = Color.argb(50, 255, 255, 0);
-    private static int corClasseAreaUrbana = Color.argb(50, 225, 61, 255);
+    private static int corClasseAreaUrbana = Color.argb(50, 61, 61, 61);
 
 
     /****************************
@@ -265,11 +265,16 @@ public class Principal extends AppCompatActivity
 
                 //Salvar demarcação
                 bd.insereDemarcacao(demarcacao);
+                int idDemarcacao = bd.selecionarIddaUltimaDemarcacaoInserida();
+
                 //Fechar Dialogo
                 alerta.dismiss();
                 //Ir para a tela de redesenhar
                 Intent intent = new Intent();
                 intent.setClass(Principal.this, DemarcarPoligonoActivity.class);
+
+
+                intent.putExtra("idDemarcacao", idDemarcacao);
                 intent.putExtra("idPoligono", idPoligono);
                 startActivity(intent);
             }
@@ -511,12 +516,13 @@ public class Principal extends AppCompatActivity
 
     @Override
     public void onMapClick(LatLng latLng) {
-        Log.i("Clique no mapa", "LatLong: " + latLng);
+      //  Log.i("Clique no mapa", "LatLong: " + latLng);
     }
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-        Log.i("Longo clique no mapa", "LatLong: " + latLng);
+    //    Log.i("Longo clique no mapa", "LatLong: " + latLng);
+        //TODO quando clicar em um local vazia pergunta se deseja criar um nova área.
     }
 
     //-------------GET ID USUARIO-----------------//

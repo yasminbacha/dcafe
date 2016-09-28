@@ -9,7 +9,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Ajude-nos e informe o uso dessa área, caso esteja incorreto."
+        android:text="Ajude-nos e informe o uso correto dessa área:"
         android:textColor="@android:color/black" />
 
     <RadioGroup
@@ -83,7 +83,7 @@
         android:layout_marginBottom="10dp"
         android:background="@color/colorPrimary"
         android:padding="10dp"
-        android:text="Desenhar novamente a área" />
+        android:text="Editar área" />
 
     <Button
         android:id="@+id/btConcluir"

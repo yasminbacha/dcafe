@@ -171,7 +171,6 @@ public class ControlarBanco {
             return "Demarcação inserida com sucesso";
     }
 
-
     /*-------------------------------------------------------------------------------------------*/
     /*---------------------------------------ALTERAÇÕES-------------------------------------------*/
     /*--------------------------------------------------------------------------------------------*/
@@ -189,13 +188,13 @@ public class ControlarBanco {
         db.close();
     }
 
-    public void alteracoodernadasDemarcacao(int idPoligono, String coodernadasDemarcacao) {
+    public void alteracoodernadasDemarcacao(int idDemarcacao, String coodernadasDemarcacao) {
         ContentValues valores;
         String where;
 
         db = banco.getWritableDatabase();
 
-        where = "Poligono_idPoligono" + "=" + idPoligono;
+        where = "idDemarcacao" + "=" + idDemarcacao;
         valores = new ContentValues();
         valores.put("coodernadasDemarcacao", coodernadasDemarcacao);
 
@@ -225,6 +224,34 @@ public class ControlarBanco {
 
         cursor.close();
         return demarcacao;
+    }
+
+    public int selecionarIddaUltimaDemarcacaoInserida() {
+        String query = "SELECT max(idDemarcacao) as idDemarcacao FROM demarcacao";
+
+        db = banco.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        cursor.moveToFirst();
+
+        int idDemarcacao = cursor.getInt(cursor.getColumnIndex("idDemarcacao"));
+
+        cursor.close();
+        return idDemarcacao;
+    }
+
+    public int selecionarClasseDaDemarcacaoPorIdDemarcacao(int idDermacacao) {
+        String query = "SELECT Classe_idClasse FROM demarcacao where idDemarcacao =" + idDermacacao;
+
+        db = banco.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+        cursor.moveToFirst();
+
+        int classe_idClasse = cursor.getInt(cursor.getColumnIndex("Classe_idClasse"));
+
+        cursor.close();
+        return classe_idClasse;
     }
 
     public int selecionarIdClasse(String nomeClasse) {
@@ -302,7 +329,6 @@ public class ControlarBanco {
         }
     }
 
-
     public Poligono selecionarPoligonoPorId(int idPoligono) {
         String sql = "SELECT * FROM poligono WHERE idPoligono=" + idPoligono;
         db = banco.getWritableDatabase();
@@ -326,7 +352,6 @@ public class ControlarBanco {
             return poligono;
         }
     }
-
 
     public int SelecionaridPoligonoPorIdPoligonoSistema(String idPoligonoSistema) {
         String sql = "SELECT idPoligono FROM poligono WHERE idPoligonoSistema='" + idPoligonoSistema + "'";

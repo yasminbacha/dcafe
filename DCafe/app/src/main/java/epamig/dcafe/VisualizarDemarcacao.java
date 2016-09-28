@@ -124,7 +124,7 @@ public class VisualizarDemarcacao extends AppCompatActivity implements OnMapRead
                         ColocarPoligonoOriginalMapa();
                         break;
                     case 1: // secondbutton
-                        map.clear();
+                        //map.clear();
                         ColocarPoligonoRedemarcadoMapa();
                         break;
                 }

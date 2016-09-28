@@ -86,8 +86,6 @@ public class CustomAdapterListaDemarcacoes extends BaseAdapter {
         rowView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, "IDDeMARCACAO " + idDemarcacao[position], Toast.LENGTH_LONG).show();
-
                 Intent i = new Intent();
                 i.setClass(context, VisualizarDemarcacao.class);
                 i.putExtra("idDemarcacao", idDemarcacao[position]);

@@ -31,6 +31,7 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
 
     List<LatLng> criandoPoligono;
     int idPoligono;
+    int idDemarcacao;
     public ControlarBanco bd;
     private GoogleMap map;
     public boolean FlagPoligonoVisualizado = false;
@@ -40,10 +41,9 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
     private static int corClasseCafe = Color.argb(50, 255, 0, 0);
     private static int corClasseMata = Color.argb(50, 0, 255, 0);
     private static int corClasseOutrosUsos = Color.argb(50, 255, 255, 0);
-    private static int corClasseAreaUrbana = Color.argb(50, 225, 61, 255);
+    private static int corClasseAreaUrbana = Color.argb(50, 211, 211, 211);
 
     private static int corBranca = Color.argb(30, 225, 255, 255);
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,15 +56,19 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
             Bundle extras = getIntent().getExtras();
             if (extras == null) {
                 idPoligono = -1;
+                idDemarcacao = -1;
             } else {
                 idPoligono = extras.getInt("idPoligono");
+                idDemarcacao = extras.getInt("idDemarcacao");
             }
         } else {
             idPoligono = (int) savedInstanceState.getSerializable("idPoligono");
+            idDemarcacao = (int) savedInstanceState.getSerializable("idDemarcacao");
         }
 
         bd = new ControlarBanco(getBaseContext());
         //----------------------------Fragmento do mapa-------------------------------------------//
+
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapaRedemarcar);
         mapFragment.getMapAsync(this);
@@ -97,7 +101,7 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
             if (FlagPoligonoVisualizado == false) {
                 Toast.makeText(DemarcarPoligonoActivity.this, "Clique no botão de Visualizar antes de salvar  ", Toast.LENGTH_LONG).show();
             } else {
-                bd.alteracoodernadasDemarcacao(idPoligono, criandoPoligono.toString());
+                bd.alteracoodernadasDemarcacao(idDemarcacao, criandoPoligono.toString());
                 Toast.makeText(DemarcarPoligonoActivity.this, "Sua demarcação de uso foi inserida com sucesso, obrigado por colaborar!", Toast.LENGTH_LONG).show();
                 finish();
             }
@@ -116,8 +120,8 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
         Marker marcador;
         marcador = map.addMarker(new MarkerOptions()
                 .position(latLng)
-                .title("Marcador")
-                .snippet("Ponto do poligono")
+                .title("Ponto do poligono")
+                .snippet("")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
 
         criandoPoligono.add(latLng);
@@ -136,8 +140,9 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
 
         //----------------------------colocar poligono no mapa------------------------------------//
         Poligono poligono = bd.PegarPoligono(idPoligono);
+        int idClasse = bd.selecionarClasseDaDemarcacaoPorIdDemarcacao(idDemarcacao);
         List<LatLng> LatLong = criarPoligono(poligono.getCoodernadasPoligono());
-        String Classe = bd.selecionarNomeClassePorId(poligono.getClassePoligono());
+        String Classe = bd.selecionarNomeClassePorId(idClasse);
         int corClasse = pegarCorClasse(Classe);
         Polygon mClickablePolygonWithHoles = map.addPolygon(new PolygonOptions()
                 .addAll(LatLong)

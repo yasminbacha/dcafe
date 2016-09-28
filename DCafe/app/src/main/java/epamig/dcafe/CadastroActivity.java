@@ -241,19 +241,13 @@ public class CadastroActivity extends AppCompatActivity implements LoaderCallbac
         private final String mEmail;
         private final String mSenha;
         private final String mAtividadeProfissional;
-        private Usuario mUsuario;
+
 
         UserLoginTask(String nome, String email, String senha, String atividadeProfissional) {
             mNome = nome;
             mEmail = email;
             mSenha = md5(senha);
             mAtividadeProfissional = atividadeProfissional;
-            mUsuario = new Usuario();
-            mUsuario.setNomeUsuario(mNome);
-            mUsuario.setNomeUsuario(mEmail);
-            mUsuario.setNomeUsuario(mAtividadeProfissional);
-            mUsuario.setNomeUsuario(mSenha);
-
         }
 
         @Override
@@ -266,6 +260,7 @@ public class CadastroActivity extends AppCompatActivity implements LoaderCallbac
             valores.add(new BasicNameValuePair("emailUsuario", mEmail));
             valores.add(new BasicNameValuePair("profissaoUsuario", mAtividadeProfissional));
             valores.add(new BasicNameValuePair("senhaUsuario", mSenha));
+
             try {
                 post.setEntity(new UrlEncodedFormEntity(valores));
             } catch (UnsupportedEncodingException e) {
@@ -278,8 +273,15 @@ public class CadastroActivity extends AppCompatActivity implements LoaderCallbac
                     JSONObject objJson = new JSONObject(json);
                     JSONArray UsuariosJson = objJson.getJSONArray("usuarios");
                     JSONObject usuario = new JSONObject(UsuariosJson.getString(0));
-                    mUsuario.setIdUsuario(usuario.getInt("idUsuario"));
-                    salvarLogin(mUsuario);
+                    Log.i("USUARIO", mNome + mEmail);
+                    Usuario uUsuario = new Usuario();
+                    uUsuario.setNomeUsuario(mNome);
+                    uUsuario.setNomeUsuario(mEmail);
+                    uUsuario.setNomeUsuario(mAtividadeProfissional);
+                    uUsuario.setNomeUsuario(md5(mSenha));
+                    uUsuario.setIdUsuario(usuario.getInt("idUsuario"));
+
+                    salvarLogin(uUsuario);
                 } catch (JSONException e) {
                     Log.i("ERRO", e.toString());
                 }
@@ -341,7 +343,7 @@ public class CadastroActivity extends AppCompatActivity implements LoaderCallbac
 
     //-----------------------------Salvando dados no SharedPreferences----------------------------//
     public void salvarLogin(Usuario usuario) {
-
+        Log.i("USUARIO",usuario.getNomeUsuario() +" - "+ usuario.getIdUsuario());
         SharedPreferences settings = getSharedPreferences(getString(R.string.preferences), 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("idUsuario", usuario.getIdUsuario());

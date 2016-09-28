@@ -274,7 +274,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             SuperUsuario = result;
 
             if (SuperUsuario.getSenhaUsuario() == null || SuperUsuario.getSenhaUsuario().isEmpty() || SuperUsuario.getSenhaUsuario().equals("")) {
-                Log.i("TESTE", "T: "+SuperUsuario.getSenhaUsuario());
 
                 mEmailView.setError("Email não cadastrado");
                 mEmailView.requestFocus();

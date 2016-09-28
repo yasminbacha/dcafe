@@ -13,6 +13,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.HttpURLConnection;
+
 import cz.msebera.android.httpclient.Header;
 import epamig.dcafe.bancodedados.ControlarBanco;
 import epamig.dcafe.model.Poligono;
@@ -40,6 +42,7 @@ public class SincronizacaoActivity extends AppCompatActivity {
     //---------------------------Função Assíncrona que pega os valores do Webservice----------------//
     private void pegarValoresWebService() {
         AsyncHttpClient client = new AsyncHttpClient();
+        //client.setConnectTimeout(20000);
         mDialog.show();
         client.get(
                  IP + "poligonos.php", new TextHttpResponseHandler() {
@@ -105,6 +108,7 @@ public class SincronizacaoActivity extends AppCompatActivity {
         resultado = bd.insereMapa("solouusodis", "Sao Lourenco");
         resultado = bd.insereMapa("saosebusodis", "Sao Sebastiao da Bela Vista");
         resultado = bd.insereMapa("soleusodis", "Soledado de Minas");
+        resultado = bd.insereMapa("lavras", "Lavras");
     }
 
     //---------------------------BD Inserindo Polignos--------------------------------------------//
