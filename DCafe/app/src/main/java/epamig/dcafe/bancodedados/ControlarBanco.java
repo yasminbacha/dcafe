@@ -197,7 +197,7 @@ public class ControlarBanco {
         where = "idDemarcacao" + "=" + idDemarcacao;
         valores = new ContentValues();
         valores.put("coodernadasDemarcacao", coodernadasDemarcacao);
-
+        Log.i("COODERNADAS DEMARCACAO", coodernadasDemarcacao);
         db.update("demarcacao", valores, where, null);
         db.close();
     }

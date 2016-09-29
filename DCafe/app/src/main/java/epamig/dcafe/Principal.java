@@ -277,6 +277,7 @@ public class Principal extends AppCompatActivity
 
                 intent.putExtra("idDemarcacao", idDemarcacao);
                 intent.putExtra("idPoligono", idPoligono);
+                intent.putExtra("localizacao", "-");
                 startActivity(intent);
             }
         });
@@ -355,6 +356,7 @@ public class Principal extends AppCompatActivity
 
                 intent.putExtra("idDemarcacao", idDemarcacao);
                 intent.putExtra("localizacao", localizacao.toString());
+                intent.putExtra("idPoligono", -1);
                 startActivity(intent);
             }
         });

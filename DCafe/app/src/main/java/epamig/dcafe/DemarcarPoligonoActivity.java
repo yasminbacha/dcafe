@@ -3,6 +3,7 @@ package epamig.dcafe;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
@@ -86,6 +87,10 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
     }
 
     public LatLng converteStringParaLocalizacao(String loc) {
+        int posicaoInicio = loc.indexOf("(")+1;
+        int posicaoFinal = loc.indexOf(")");
+        loc = loc.substring(posicaoInicio, posicaoFinal);
+
         String[] latLng = loc.split(",");
         double latitude = Double.parseDouble(latLng[0]);
         double longitude = Double.parseDouble(latLng[1]);
@@ -159,13 +164,16 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
         uiSettings.setCompassEnabled(true);
         uiSettings.setZoomControlsEnabled(true);
 
-        if (localizacaoStr.equals("-")) {
+        if (idPoligono != -1) {
             //Alterar área
             colocarPoligononoMapa();
         } else {
             localizacao = converteStringParaLocalizacao(localizacaoStr);
+            Log.i("TESTE", localizacao.toString());
             //Criar nova área
-            map.moveCamera(CameraUpdateFactory.newLatLngZoom(localizacao, 16));
+            LatLngBounds latLongPoligono = new LatLngBounds(localizacao, localizacao);
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLongPoligono.getCenter(), 16));
+
         }
         map.setOnMapLongClickListener(this);
         map.setOnMapClickListener(this);

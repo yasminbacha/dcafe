@@ -8,7 +8,7 @@ import android.graphics.Color;
 
 public class Aplicacao  extends Application {
 
-    private String IP = "200.235.75.13:8080/demarcafe/";//*/"http://www.honeycode.com.br/demarcafe/";
+    private String IP = "http://200.235.75.13:8080/demarcafe/";//*/"http://www.honeycode.com.br/demarcafe/";
     private static int corClasseAgua = Color.argb(50, 0, 0, 255);
     private static int corClasseCafe = Color.argb(50, 255, 0, 0);
     private static int corClasseMata = Color.argb(50, 0, 255, 0);

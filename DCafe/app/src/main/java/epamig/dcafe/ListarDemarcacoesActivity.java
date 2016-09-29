@@ -44,11 +44,18 @@ public class ListarDemarcacoesActivity extends AppCompatActivity {
         RedesenhoList = new String[tamanhoLista];
 
         for (int i = 0; i < tamanhoLista; i++) {
-            Poligono poli = bd.selecionarPoligonoPorId(ListDemarcacoes.get(i).getPoligono_idPoligono());
-
+            String ClasseOriginal;
+            String CidadePoligono;
+            int idPoligono = ListDemarcacoes.get(i).getPoligono_idPoligono();
+            if(idPoligono > 0) {
+                Poligono poli = bd.selecionarPoligonoPorId(ListDemarcacoes.get(i).getPoligono_idPoligono());
+                ClasseOriginal = "Uso inicial: " + bd.selecionarNomeClassePorId(poli.getClassePoligono());
+                CidadePoligono = "Cidade: " + bd.selecionarCidadePorIdMapa(poli.getMapaPoligono());
+            }else{
+                ClasseOriginal = "Nova área";
+                CidadePoligono = "Cidade: Lavras"; //TODO COMO?;
+            }
             int idDemarcao = ListDemarcacoes.get(i).getIdDemarcacao();
-            String ClasseOriginal = "Uso inicial: "+bd.selecionarNomeClassePorId(poli.getClassePoligono());
-            String CidadePoligono = "Cidade: "+bd.selecionarCidadePorIdMapa(poli.getMapaPoligono());
             String ClasseDemarcada = "Uso demarcado: "+bd.selecionarNomeClassePorId(ListDemarcacoes.get(i).getClasse_idClasse());
             String Comentarios = "Comentários: "+ListDemarcacoes.get(i).getComentariosDemarcacao();
 
