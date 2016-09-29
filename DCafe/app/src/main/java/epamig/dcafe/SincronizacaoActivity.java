@@ -50,7 +50,7 @@ public class SincronizacaoActivity extends AppCompatActivity {
                     @Override
                     public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                         mDialog.dismiss();
-                        //TODO mensagem de erro
+
                         String erro = new Exception(throwable).getMessage();
                         Log.i("ERRO", "Erro no download: "+erro);
                     }
@@ -126,7 +126,9 @@ public class SincronizacaoActivity extends AppCompatActivity {
                 int idClasse = bd.selecionarIdClasse(jsonPoligono.getString("Classe"));
                 int idMapa = bd.selecionarIdMapaNomeMapa(jsonPoligono.getString("Mapa"));
 
+
                 //--------------Pegar o id do mapa e Classe---------------------------------------//
+                objetoPoligono.setIdPoligono(jsonPoligono.getInt("Id"));
                 objetoPoligono.setCoodernadasPoligono(jsonPoligono.getString("Coodernadas"));
                 objetoPoligono.setClassePoligono(idClasse);
                 objetoPoligono.setMapaPoligono(idMapa);

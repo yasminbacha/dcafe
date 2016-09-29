@@ -28,7 +28,7 @@ public class CriarBanco extends SQLiteOpenHelper {
                 ");";
 
         String sqlPoligono = "CREATE TABLE poligono(" +
-                "idPoligono integer primary key autoincrement," +
+                "idPoligono integer primary key," +
                 "coodernadasPoligono text," +
                 "idPoligonoSistema text," +
                 "Classe_idClasse integer not null," +
@@ -44,7 +44,8 @@ public class CriarBanco extends SQLiteOpenHelper {
                 "Classe_idClasse integer not null," +
                 "comentariosDemarcacao text," +
                 "coodernadasDemarcacao text," +
-                "statusDemarcacao text"+
+                "statusDemarcacao text,"+
+                "flagSincronizado int"+
                 ");";
 
         db.execSQL(sqlClasse);
