@@ -25,6 +25,7 @@ import java.util.List;
 
 import epamig.dcafe.bancodedados.ControlarBanco;
 import epamig.dcafe.model.Poligono;
+import epamig.dcafe.sistema.Aplicacao;
 
 public class DemarcarPoligonoActivity extends AppCompatActivity
         implements OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener {
@@ -32,16 +33,21 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
     List<LatLng> criandoPoligono;
     int idPoligono;
     int idDemarcacao;
+    LatLng localizacao;
+    String localizacaoStr;
     public ControlarBanco bd;
     private GoogleMap map;
     public boolean FlagPoligonoVisualizado = false;
+    public boolean FlagPoligonoDemarcado = false;
+
 
     //--------------------------------Cores das Classes--------------------------------//
-    private static int corClasseAgua = Color.argb(50, 0, 0, 255);
-    private static int corClasseCafe = Color.argb(50, 255, 0, 0);
-    private static int corClasseMata = Color.argb(50, 0, 255, 0);
-    private static int corClasseOutrosUsos = Color.argb(50, 255, 255, 0);
-    private static int corClasseAreaUrbana = Color.argb(50, 211, 211, 211);
+    Aplicacao ap = new Aplicacao();
+    int corClasseAgua = ap.getCorClasseAgua();
+    int corClasseCafe = ap.getCorClasseCafe();
+    int corClasseMata = ap.getCorClasseMata();
+    int corClasseOutrosUsos = ap.getCorClasseOutrosUsos();
+    int corClasseAreaUrbana = ap.getCorClasseAreaUrbana();
 
     private static int corBranca = Color.argb(30, 225, 255, 255);
 
@@ -57,23 +63,35 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
             if (extras == null) {
                 idPoligono = -1;
                 idDemarcacao = -1;
+                localizacaoStr = "-";
             } else {
+                localizacaoStr = extras.getString("localizacao");
                 idPoligono = extras.getInt("idPoligono");
                 idDemarcacao = extras.getInt("idDemarcacao");
             }
         } else {
+            localizacaoStr = (String) savedInstanceState.getSerializable("localizacao");
             idPoligono = (int) savedInstanceState.getSerializable("idPoligono");
             idDemarcacao = (int) savedInstanceState.getSerializable("idDemarcacao");
+
         }
 
         bd = new ControlarBanco(getBaseContext());
         //----------------------------Fragmento do mapa-------------------------------------------//
-
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.mapaRedemarcar);
         mapFragment.getMapAsync(this);
 
         criandoPoligono = new ArrayList<>();
+    }
+
+    public LatLng converteStringParaLocalizacao(String loc) {
+        String[] latLng = loc.split(",");
+        double latitude = Double.parseDouble(latLng[0]);
+        double longitude = Double.parseDouble(latLng[1]);
+        LatLng local = new LatLng(latitude, longitude);
+
+        return local;
     }
 
     @Override
@@ -89,14 +107,18 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
         if (id == android.R.id.home) {
             finish();
         } else if (id == R.id.action_mostrar_demarcacao) {
-            map.clear();
-            Polygon mClickablePolygonWithHoles = map.addPolygon(new PolygonOptions()
-                    .addAll(criandoPoligono)
-                    .fillColor(corBranca)
-                    .strokeColor(Color.BLACK)
-                    .strokeWidth(3)
-                    .clickable(true));
-            FlagPoligonoVisualizado = true;
+            if (FlagPoligonoDemarcado == false) {
+                Toast.makeText(DemarcarPoligonoActivity.this, "Marque pelo menos um ponto para criar uma nova área.", Toast.LENGTH_LONG).show();
+            } else {
+                map.clear();
+                Polygon mClickablePolygonWithHoles = map.addPolygon(new PolygonOptions()
+                        .addAll(criandoPoligono)
+                        .fillColor(corBranca)
+                        .strokeColor(Color.BLACK)
+                        .strokeWidth(3)
+                        .clickable(true));
+                FlagPoligonoVisualizado = true;
+            }
         } else if (id == R.id.action_salvar_demarcacao) {
             if (FlagPoligonoVisualizado == false) {
                 Toast.makeText(DemarcarPoligonoActivity.this, "Clique no botão de Visualizar antes de salvar  ", Toast.LENGTH_LONG).show();
@@ -105,8 +127,6 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
                 Toast.makeText(DemarcarPoligonoActivity.this, "Sua demarcação de uso foi inserida com sucesso, obrigado por colaborar!", Toast.LENGTH_LONG).show();
                 finish();
             }
-
-
         }
         return super.onOptionsItemSelected(item);
     }
@@ -124,6 +144,7 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
                 .snippet("")
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
 
+        FlagPoligonoDemarcado = true;
         criandoPoligono.add(latLng);
     }
 
@@ -138,7 +159,20 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
         uiSettings.setCompassEnabled(true);
         uiSettings.setZoomControlsEnabled(true);
 
-        //----------------------------colocar poligono no mapa------------------------------------//
+        if (localizacaoStr.equals("-")) {
+            //Alterar área
+            colocarPoligononoMapa();
+        } else {
+            localizacao = converteStringParaLocalizacao(localizacaoStr);
+            //Criar nova área
+            map.moveCamera(CameraUpdateFactory.newLatLngZoom(localizacao, 16));
+        }
+        map.setOnMapLongClickListener(this);
+        map.setOnMapClickListener(this);
+
+    }
+
+    public void colocarPoligononoMapa() {
         Poligono poligono = bd.PegarPoligono(idPoligono);
         int idClasse = bd.selecionarClasseDaDemarcacaoPorIdDemarcacao(idDemarcacao);
         List<LatLng> LatLong = criarPoligono(poligono.getCoodernadasPoligono());
@@ -155,10 +189,6 @@ public class DemarcarPoligonoActivity extends AppCompatActivity
         LatLngBounds latLongPoligono = new LatLngBounds(ll, ll);
         //----------------------------Mover para cidade-------------------------------------------//
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(latLongPoligono.getCenter(), 16));
-
-        map.setOnMapLongClickListener(this);
-        map.setOnMapClickListener(this);
-
     }
 
     private List<LatLng> criarPoligono(String poligono) {

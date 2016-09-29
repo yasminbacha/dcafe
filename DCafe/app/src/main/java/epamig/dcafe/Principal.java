@@ -48,6 +48,7 @@ import epamig.dcafe.bancodedados.ControlarBanco;
 import epamig.dcafe.model.Demarcacao;
 import epamig.dcafe.model.Poligono;
 import epamig.dcafe.model.Usuario;
+import epamig.dcafe.sistema.Aplicacao;
 
 
 public class Principal extends AppCompatActivity
@@ -68,13 +69,13 @@ public class Principal extends AppCompatActivity
 //TODO sempre trocar
     ProgressDialog dialog;
 
-
     //--------------------------------Cores das Classes--------------------------------//
-    private static int corClasseAgua = Color.argb(50, 0, 0, 255);
-    private static int corClasseCafe = Color.argb(50, 255, 0, 0);
-    private static int corClasseMata = Color.argb(50, 0, 255, 0);
-    private static int corClasseOutrosUsos = Color.argb(50, 255, 255, 0);
-    private static int corClasseAreaUrbana = Color.argb(50, 61, 61, 61);
+    Aplicacao ap = new Aplicacao();
+    int corClasseAgua = ap.getCorClasseAgua();
+    int corClasseCafe = ap.getCorClasseCafe();
+    int corClasseMata = ap.getCorClasseMata();
+    int corClasseOutrosUsos = ap.getCorClasseOutrosUsos();
+    int corClasseAreaUrbana = ap.getCorClasseAreaUrbana();
 
 
     /****************************
@@ -289,6 +290,78 @@ public class Principal extends AppCompatActivity
             ClasseExibida = "Area Urbana";
         }
         builder.setTitle("Uso da área: " + ClasseExibida);
+        builder.setView(view);
+        alerta = builder.create();
+        alerta.show();
+    }
+
+
+    //-----------------------------------Funções do dialogo -dermarcar nova área e uso da terra---------------//
+    private void alertarCliqueAreaEmBranco(final LatLng localizacao) {
+        LayoutInflater li = getLayoutInflater();
+        View view = li.inflate(R.layout.alerta_nova_area, null);
+
+        final Button btCancelar = (Button) view.findViewById(R.id.btCancelar);
+        final Button btDemarcar = (Button) view.findViewById(R.id.btMarcarNovamente);
+        final EditText edtComentarios = (EditText) view.findViewById(R.id.edtComentarios);
+        final RadioButton rbAgua = (RadioButton) view.findViewById(R.id.rbAgua);
+        final RadioButton rbArea_urbana = (RadioButton) view.findViewById(R.id.rbArea_urbana);
+        final RadioButton rbCafe = (RadioButton) view.findViewById(R.id.rbCafe);
+        final RadioButton rbMata = (RadioButton) view.findViewById(R.id.rbMata);
+        final RadioButton rbOutros_usos = (RadioButton) view.findViewById(R.id.rbOutros_usos);
+
+        btCancelar.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                alerta.dismiss();
+            }
+        });
+
+        btDemarcar.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                //INSERIR
+                String nomeClasse = "";
+                if (rbAgua.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseAgua);
+                } else if (rbCafe.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseCafe);
+                } else if (rbArea_urbana.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseAreaUrbana);
+                } else if (rbMata.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseMata);
+                } else if (rbOutros_usos.isChecked()) {
+                    nomeClasse = getString(R.string.nomeClasseOutrosUsos);
+                }
+
+                int idClasseSelec;
+                idClasseSelec = bd.selecionarIdClasse(nomeClasse);
+
+                //preenchendo objeto demarcação
+                final Demarcacao demarcacao = new Demarcacao();
+                demarcacao.setClasse_idClasse(idClasseSelec);
+                demarcacao.setUsuario_idUsuario(getIdUsuarioPreferences());
+                demarcacao.setComentariosDemarcacao(edtComentarios.getText().toString());
+                demarcacao.setStatusDemarcacao(getString(R.string.naoAvaliado));
+
+                //Salvar demarcação
+                bd.insereDemarcacao(demarcacao);
+                int idDemarcacao = bd.selecionarIddaUltimaDemarcacaoInserida();
+
+                //Fechar Dialogo
+                alerta.dismiss();
+                //Ir para a tela de redesenhar
+                Intent intent = new Intent();
+                intent.setClass(Principal.this, DemarcarPoligonoActivity.class);
+
+
+                intent.putExtra("idDemarcacao", idDemarcacao);
+                intent.putExtra("localizacao", localizacao.toString());
+                startActivity(intent);
+            }
+        });
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        builder.setTitle("Cadastrar nova área");
         builder.setView(view);
         alerta = builder.create();
         alerta.show();
@@ -521,8 +594,7 @@ public class Principal extends AppCompatActivity
 
     @Override
     public void onMapLongClick(LatLng latLng) {
-    //    Log.i("Longo clique no mapa", "LatLong: " + latLng);
-        //TODO quando clicar em um local vazia pergunta se deseja criar um nova área.
+        alertarCliqueAreaEmBranco(latLng);
     }
 
     //-------------GET ID USUARIO-----------------//

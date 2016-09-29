@@ -26,6 +26,7 @@ import java.util.List;
 import epamig.dcafe.bancodedados.ControlarBanco;
 import epamig.dcafe.model.Demarcacao;
 import epamig.dcafe.model.Poligono;
+import epamig.dcafe.sistema.Aplicacao;
 
 public class VisualizarDemarcacao extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -52,11 +53,12 @@ public class VisualizarDemarcacao extends AppCompatActivity implements OnMapRead
     List<LatLng> coodernadasPoligonoDemarcado;
 
     //--------------------------------Cores das Classes--------------------------------//
-    private static int corClasseAgua = Color.argb(50, 0, 0, 255);
-    private static int corClasseCafe = Color.argb(50, 255, 0, 0);
-    private static int corClasseMata = Color.argb(50, 0, 255, 0);
-    private static int corClasseOutrosUsos = Color.argb(50, 255, 255, 0);
-    private static int corClasseAreaUrbana = Color.argb(50, 225, 61, 255);
+    Aplicacao ap = new Aplicacao();
+    int corClasseAgua = ap.getCorClasseAgua();
+    int corClasseCafe = ap.getCorClasseCafe();
+    int corClasseMata = ap.getCorClasseMata();
+    int corClasseOutrosUsos = ap.getCorClasseOutrosUsos();
+    int corClasseAreaUrbana = ap.getCorClasseAreaUrbana();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

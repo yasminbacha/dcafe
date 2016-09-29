@@ -40,12 +40,13 @@ public class CriarBanco extends SQLiteOpenHelper {
         String sqlDemarcacao = "CREATE TABLE demarcacao(" +
                 "idDemarcacao integer primary key autoincrement," +
                 "Usuario_idUsuario integer not null," +
-                "Poligono_idPoligono integer not null," +
+                "Poligono_idPoligono integer," +
                 "Classe_idClasse integer not null," +
                 "comentariosDemarcacao text," +
                 "coodernadasDemarcacao text," +
                 "statusDemarcacao text"+
                 ");";
+
         db.execSQL(sqlClasse);
         db.execSQL(sqlMapa);
         db.execSQL(sqlPoligono);

@@ -22,6 +22,7 @@ public class Demarcacao {
         this.statusDemarcacao = statusDemarcacao;
     }
 
+
     public int getIdDemarcacao() {
         return idDemarcacao;
     }
