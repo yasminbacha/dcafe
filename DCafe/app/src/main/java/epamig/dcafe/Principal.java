@@ -20,6 +20,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -66,7 +67,7 @@ public class Principal extends AppCompatActivity
     int check = 0;
 
     private static String CIDADEINICIAL = "Lavras";
-//TODO sempre trocar
+    //TODO sempre trocar
     ProgressDialog dialog;
 
     //--------------------------------Cores das Classes--------------------------------//
@@ -143,8 +144,8 @@ public class Principal extends AppCompatActivity
                     new Thread() {
                         public void run() {
                             try {*/
-                                //TODO
-                                colocarPoligonosnoMapa(Cidade);
+                    //TODO
+                    colocarPoligonosnoMapa(Cidade);
                                 /*dialog.dismiss();
                             } catch (Exception e) {
                                 Log.i("ERRO POLIGONOS NO MAPA", e.toString());
@@ -160,6 +161,25 @@ public class Principal extends AppCompatActivity
 
             }
         });
+    }
+
+    //-------------------------------------NAVBAR-----------------------------------//
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_sincronizar, menu);
+        return true;
+    }
+
+    //----------------------Criar botão voltar na toolbar-----------------------------------------//
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_sincronizar_demarcacao) {
+            Toast.makeText(getApplicationContext(), "CLICOU SINCRONIZAR", Toast.LENGTH_LONG).show();
+            //TODO sincronizar
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     //-----------------------------------Funções do dialogo -dermarcar uso da terra---------------//
@@ -450,7 +470,7 @@ public class Principal extends AppCompatActivity
 
     @Override
     public boolean onMyLocationButtonClick() {
-       // Toast.makeText(Principal.this, MinhaCidade(), Toast.LENGTH_LONG).show();
+        // Toast.makeText(Principal.this, MinhaCidade(), Toast.LENGTH_LONG).show();
         return false;
     }
 
@@ -514,7 +534,7 @@ public class Principal extends AppCompatActivity
         int posicaoFinal = poligono.indexOf(")");
         String coodernadas = poligono.substring(posicaoInicio, posicaoFinal);
         String[] vetorCoodernadas = coodernadas.split(",");
-        for (String codernadas  : vetorCoodernadas) {
+        for (String codernadas : vetorCoodernadas) {
             String[] latlong = codernadas.split(" ");
             Double longi = Double.parseDouble(latlong[0]);
             Double lat = Double.parseDouble(latlong[1]);
@@ -549,21 +569,6 @@ public class Principal extends AppCompatActivity
         return true;
     }*/
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -591,7 +596,7 @@ public class Principal extends AppCompatActivity
 
     @Override
     public void onMapClick(LatLng latLng) {
-      //  Log.i("Clique no mapa", "LatLong: " + latLng);
+        //  Log.i("Clique no mapa", "LatLong: " + latLng);
     }
 
     @Override
