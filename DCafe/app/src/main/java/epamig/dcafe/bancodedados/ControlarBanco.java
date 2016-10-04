@@ -173,6 +173,7 @@ public class ControlarBanco {
 
     /*-------------------------------------------------------------------------------------------*/
     /*---------------------------------------ALTERAÇÕES-------------------------------------------*/
+
     /*--------------------------------------------------------------------------------------------*/
     public void alteraidPoligonoSistema(int idPoligono, String idPoligonoSistema) {
         ContentValues valores;
@@ -213,14 +214,16 @@ public class ControlarBanco {
 
         cursor.moveToFirst();
 
+        idDemarcacao = cursor.getInt(cursor.getColumnIndex("idDemarcacao"));
         int usuario_idUsuario = cursor.getInt(cursor.getColumnIndex("Usuario_idUsuario"));
         int poligono_idPoligono = cursor.getInt(cursor.getColumnIndex("Poligono_idPoligono"));
         int classe_idClasse = cursor.getInt(cursor.getColumnIndex("Classe_idClasse"));
         String comentariosDemarcacao = cursor.getString(cursor.getColumnIndex("comentariosDemarcacao"));
         String coodernadasDemarcacao = cursor.getString(cursor.getColumnIndex("coodernadasDemarcacao"));
         String statusDemarcacao = cursor.getString(cursor.getColumnIndex("statusDemarcacao"));
+        int flagSincronizado = cursor.getInt(cursor.getColumnIndex("flagSincronizado"));
 
-        Demarcacao demarcacao = new Demarcacao(idDemarcacao, usuario_idUsuario, poligono_idPoligono, classe_idClasse, comentariosDemarcacao, coodernadasDemarcacao, statusDemarcacao);
+        Demarcacao demarcacao = new Demarcacao(idDemarcacao, usuario_idUsuario, poligono_idPoligono, classe_idClasse, comentariosDemarcacao, coodernadasDemarcacao, statusDemarcacao, flagSincronizado);
 
         cursor.close();
         return demarcacao;
@@ -473,7 +476,6 @@ public class ControlarBanco {
     }
 
     public Poligono PegarPoligono(int idPoligono) {
-
         String query = "SELECT * FROM poligono WHERE idPoligono = " + idPoligono;
 
         db = banco.getWritableDatabase();
@@ -526,7 +528,7 @@ public class ControlarBanco {
 
     public List<Demarcacao> ListarTodasDemarcacoes() {
         List<Demarcacao> ListDemarcacoes = new ArrayList<>();
-        String query = "SELECT * FROM demarcacao group by Poligono_idPoligono";
+        String query = "SELECT * FROM demarcacao";
 
         db = banco.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
@@ -544,9 +546,9 @@ public class ControlarBanco {
             String comentariosDemarcacao = cursor.getString(cursor.getColumnIndex("comentariosDemarcacao"));
             String coodernadasDemarcacao = cursor.getString(cursor.getColumnIndex("coodernadasDemarcacao"));
             String statusDemarcacao = cursor.getString(cursor.getColumnIndex("statusDemarcacao"));
+            int flagSincronizado = cursor.getInt(cursor.getColumnIndex("flagSincronizado"));
 
-
-            Demarcacao demarcacao = new Demarcacao(idDemarcacao, usuario_idUsuario, poligono_idPoligono, classe_idClasse, comentariosDemarcacao, coodernadasDemarcacao, statusDemarcacao);
+            Demarcacao demarcacao = new Demarcacao(idDemarcacao, usuario_idUsuario, poligono_idPoligono, classe_idClasse, comentariosDemarcacao, coodernadasDemarcacao, statusDemarcacao, flagSincronizado);
 
             ListDemarcacoes.add(demarcacao);
             cursor.moveToNext();
@@ -555,5 +557,45 @@ public class ControlarBanco {
         return ListDemarcacoes;
     }
 
+    public List<Demarcacao> ListarTodasDemarcacoesNaoSincronizada() {
+        List<Demarcacao> ListDemarcacoes = new ArrayList<>();
+        String query = "SELECT * FROM demarcacao WHERE flagSincronizado = 0;";
 
+        db = banco.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+
+
+
+        cursor.moveToFirst();
+
+        while (!cursor.isAfterLast()) {
+
+            int idDemarcacao = cursor.getInt(cursor.getColumnIndex("idDemarcacao"));
+            int usuario_idUsuario = cursor.getInt(cursor.getColumnIndex("Usuario_idUsuario"));
+            int poligono_idPoligono = cursor.getInt(cursor.getColumnIndex("Poligono_idPoligono"));
+            int classe_idClasse = cursor.getInt(cursor.getColumnIndex("Classe_idClasse"));
+            String comentariosDemarcacao = cursor.getString(cursor.getColumnIndex("comentariosDemarcacao"));
+            String coodernadasDemarcacao = cursor.getString(cursor.getColumnIndex("coodernadasDemarcacao"));
+            String statusDemarcacao = cursor.getString(cursor.getColumnIndex("statusDemarcacao"));
+            int flagSincronizado = cursor.getInt(cursor.getColumnIndex("flagSincronizado"));
+
+            Demarcacao demarcacao = new Demarcacao(idDemarcacao, usuario_idUsuario, poligono_idPoligono, classe_idClasse, comentariosDemarcacao, coodernadasDemarcacao, statusDemarcacao, flagSincronizado);
+
+            ListDemarcacoes.add(demarcacao);
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return ListDemarcacoes;
+    }
+
+///---------------------------------------------------------------------------------------------//
+    //EXCLUIR//
+
+    public void deletarTodasDemarcacoes(){
+
+
+        db.execSQL("DELETE FROM demarcacao WHERE 1");
+        db.close();
+
+    }
 }

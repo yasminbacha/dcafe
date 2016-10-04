@@ -32,6 +32,7 @@ public class VisualizarDemarcacao extends AppCompatActivity implements OnMapRead
 
     public ControlarBanco bd;
     int idDemarcacao;
+    int idPoligono = -1;
 
 
     TextView txtClasseOriginalPoligono;
@@ -92,21 +93,27 @@ public class VisualizarDemarcacao extends AppCompatActivity implements OnMapRead
         String Comentarios = "Comentários: " + demarcacao.getComentariosDemarcacao();
         String coodernadasRedesenhada = demarcacao.getCoodernadasDemarcacao();
 
-        poligonoOriginal = bd.selecionarPoligonoPorId(demarcacao.getPoligono_idPoligono());
-        String ClasseOriginal = "Uso inicial: " + bd.selecionarNomeClassePorId(poligonoOriginal.getClassePoligono());
-        String CidadePoligono = "Cidade: " + bd.selecionarCidadePorIdMapa(poligonoOriginal.getMapaPoligono());
-        String ClasseDemarcada = "Uso demarcado: " + bd.selecionarNomeClassePorId(demarcacao.getClasse_idClasse());
-        String coodernadasOriginal = poligonoOriginal.getCoodernadasPoligono();
+        idPoligono = demarcacao.getPoligono_idPoligono();
+        if(idPoligono > 0) {
+            poligonoOriginal = bd.selecionarPoligonoPorId(idPoligono);
+            String ClasseOriginal = "Uso inicial: " + bd.selecionarNomeClassePorId(poligonoOriginal.getClassePoligono());
+            String coodernadasOriginal = poligonoOriginal.getCoodernadasPoligono();
+            txtClasseOriginalPoligono.setText(ClasseOriginal);
+            String CidadePoligono = "Cidade: " + bd.selecionarCidadePorIdMapa(poligonoOriginal.getMapaPoligono());
+            txtCidadePoligono.setText(CidadePoligono);
+        }else{
+            txtClasseOriginalPoligono.setText("Nova área");
+            txtCidadePoligono.setText("Cidade: Lavras");
+        }
 
-        if (coodernadasRedesenhada != null && !coodernadasRedesenhada.isEmpty()) {
-            Log.i("coodernadas", coodernadasRedesenhada);
+        String ClasseDemarcada = "Uso demarcado: " + bd.selecionarNomeClassePorId(demarcacao.getClasse_idClasse());
+        if (coodernadasRedesenhada != null && !coodernadasRedesenhada.isEmpty() && idPoligono>0) {
         } else {
             layoutRadio.setVisibility(LinearLayout.GONE);
         }
 
-        txtClasseOriginalPoligono.setText(ClasseOriginal);
         txtClasseDemarcadaPoligono.setText(ClasseDemarcada);
-        txtCidadePoligono.setText(CidadePoligono);
+
         txtComentariosPoligono.setText(Comentarios);
 
 
@@ -157,9 +164,12 @@ public class VisualizarDemarcacao extends AppCompatActivity implements OnMapRead
         UiSettings uiSettings = map.getUiSettings();
         uiSettings.setCompassEnabled(true);
         uiSettings.setZoomControlsEnabled(true);
-
-        ColocarPoligonoOriginalMapa();
-
+        //
+        if(idPoligono > 0) {
+            ColocarPoligonoOriginalMapa();
+        }else{
+            ColocarPoligonoRedemarcadoMapa();
+        }
     }
 
     public void ColocarPoligonoOriginalMapa() {

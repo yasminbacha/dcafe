@@ -2,6 +2,7 @@ package epamig.dcafe;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ListView;
 
@@ -33,7 +34,6 @@ public class ListarDemarcacoesActivity extends AppCompatActivity {
         //Preencher Lista
         bd = new ControlarBanco(getBaseContext());
         List<Demarcacao> ListDemarcacoes = bd.ListarTodasDemarcacoes();
-
         int tamanhoLista = ListDemarcacoes.size();
 
         IdDemarcacaoList = new int[tamanhoLista];
@@ -56,6 +56,7 @@ public class ListarDemarcacoesActivity extends AppCompatActivity {
                 CidadePoligono = "Cidade: Lavras"; //TODO COMO?;
             }
             int idDemarcao = ListDemarcacoes.get(i).getIdDemarcacao();
+            Log.i("LOG", "ID: "+idDemarcao);
             String ClasseDemarcada = "Uso demarcado: "+bd.selecionarNomeClassePorId(ListDemarcacoes.get(i).getClasse_idClasse());
             String Comentarios = "Comentários: "+ListDemarcacoes.get(i).getComentariosDemarcacao();
 

@@ -8,10 +8,11 @@ public class Demarcacao {
     String comentariosDemarcacao;
     String coodernadasDemarcacao;
     String statusDemarcacao;
+    int flagSincronizado;
 
     public Demarcacao() {
     }
-
+/*
     public Demarcacao(int idDemarcacao, int usuario_idUsuario, int poligono_idPoligono, int classe_idClasse, String comentariosDemarcacao, String coodernadasDemarcacao, String statusDemarcacao) {
         this.idDemarcacao = idDemarcacao;
         Usuario_idUsuario = usuario_idUsuario;
@@ -20,8 +21,33 @@ public class Demarcacao {
         this.comentariosDemarcacao = comentariosDemarcacao;
         this.coodernadasDemarcacao = coodernadasDemarcacao;
         this.statusDemarcacao = statusDemarcacao;
+    }*/
+
+ /*   public Demarcacao(int usuario_idUsuario, int poligono_idPoligono, int classe_idClasse, String comentariosDemarcacao, String coodernadasDemarcacao, String statusDemarcacao, int flagSincronizado) {
+        Usuario_idUsuario = usuario_idUsuario;
+        Poligono_idPoligono = poligono_idPoligono;
+        Classe_idClasse = classe_idClasse;
+        this.comentariosDemarcacao = comentariosDemarcacao;
+        this.coodernadasDemarcacao = coodernadasDemarcacao;
+        this.statusDemarcacao = statusDemarcacao;
+        this.flagSincronizado = flagSincronizado;
+    }*/
+
+
+    public Demarcacao(int idDemarcacao, int usuario_idUsuario, int poligono_idPoligono, int classe_idClasse, String comentariosDemarcacao, String coodernadasDemarcacao, String statusDemarcacao, int flagSincronizado) {
+        this.idDemarcacao = idDemarcacao;
+        Usuario_idUsuario = usuario_idUsuario;
+        Poligono_idPoligono = poligono_idPoligono;
+        Classe_idClasse = classe_idClasse;
+        this.comentariosDemarcacao = comentariosDemarcacao;
+        this.coodernadasDemarcacao = coodernadasDemarcacao;
+        this.statusDemarcacao = statusDemarcacao;
+        this.flagSincronizado = flagSincronizado;
     }
 
+    public void setFlagSincronizado(int flagSincronizado) {
+        this.flagSincronizado = flagSincronizado;
+    }
 
     public int getIdDemarcacao() {
         return idDemarcacao;
