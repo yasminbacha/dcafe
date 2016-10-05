@@ -8,7 +8,7 @@ import android.graphics.Color;
 
 public class Aplicacao  extends Application {
 
-    private String IP = "http://192.168.217.1:8080/demarcafe/";
+    private String IP = "http://192.168.1.7:8080/demarcafe/";
     ////200.235.75.13
     //200.235.75.13
     //192.168.1.4
