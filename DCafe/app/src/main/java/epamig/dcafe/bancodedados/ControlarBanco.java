@@ -161,6 +161,32 @@ public class ControlarBanco {
         valores.put("Classe_idClasse", demarcacao.getClasse_idClasse());
         valores.put("comentariosDemarcacao", demarcacao.getComentariosDemarcacao());
         valores.put("statusDemarcacao", demarcacao.getStatusDemarcacao());
+        valores.put("flagSincronizado", demarcacao.getFlagSincronizado());
+
+        resultado = db.insert("demarcacao", null, valores);
+        db.close();
+
+        if (resultado == -1)
+            return "Erro ao inserir demarcação";
+        else
+            return "Demarcação inserida com sucesso";
+    }
+
+
+    public String insereDemarcacaoCompleta(Demarcacao demarcacao) {
+        ContentValues valores;
+        long resultado;
+
+        db = banco.getWritableDatabase();
+        valores = new ContentValues();
+        valores.put("Usuario_idUsuario", demarcacao.getUsuario_idUsuario());
+        valores.put("Poligono_idPoligono", demarcacao.getPoligono_idPoligono());
+        valores.put("Classe_idClasse", demarcacao.getClasse_idClasse());
+        valores.put("comentariosDemarcacao", demarcacao.getComentariosDemarcacao());
+
+        valores.put("coodernadasDemarcacao", demarcacao.getCoodernadasDemarcacao());
+        valores.put("statusDemarcacao", demarcacao.getStatusDemarcacao());
+        valores.put("flagSincronizado", demarcacao.getFlagSincronizado());
 
         resultado = db.insert("demarcacao", null, valores);
         db.close();
@@ -559,11 +585,11 @@ public class ControlarBanco {
 
     public List<Demarcacao> ListarTodasDemarcacoesNaoSincronizada() {
         List<Demarcacao> ListDemarcacoes = new ArrayList<>();
-        String query = "SELECT * FROM demarcacao WHERE flagSincronizado = 0;";
+        String query = "SELECT * FROM demarcacao WHERE flagSincronizado = 0";//where flagSincronizado = 0
 
         db = banco.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);
-
+        Log.i("TESTE", "TAM CURSOR: "+ cursor.getCount());
 
 
         cursor.moveToFirst();
@@ -578,6 +604,8 @@ public class ControlarBanco {
             String coodernadasDemarcacao = cursor.getString(cursor.getColumnIndex("coodernadasDemarcacao"));
             String statusDemarcacao = cursor.getString(cursor.getColumnIndex("statusDemarcacao"));
             int flagSincronizado = cursor.getInt(cursor.getColumnIndex("flagSincronizado"));
+
+            Log.i("TESTE", "FLAG: "+ cursor.getInt(cursor.getColumnIndex("flagSincronizado")));
 
             Demarcacao demarcacao = new Demarcacao(idDemarcacao, usuario_idUsuario, poligono_idPoligono, classe_idClasse, comentariosDemarcacao, coodernadasDemarcacao, statusDemarcacao, flagSincronizado);
 

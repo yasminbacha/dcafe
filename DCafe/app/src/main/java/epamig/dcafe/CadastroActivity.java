@@ -241,13 +241,19 @@ public class CadastroActivity extends AppCompatActivity implements LoaderCallbac
         private final String mEmail;
         private final String mSenha;
         private final String mAtividadeProfissional;
-
+        Usuario uUsuario;
 
         UserLoginTask(String nome, String email, String senha, String atividadeProfissional) {
             mNome = nome;
             mEmail = email;
             mSenha = md5(senha);
             mAtividadeProfissional = atividadeProfissional;
+
+            uUsuario = new Usuario();
+            uUsuario.setNomeUsuario(nome);
+            uUsuario.setEmailUsuario(email);
+            uUsuario.setProfissaoUsuario(atividadeProfissional);
+            uUsuario.setSenhaUsuario(md5(senha));
         }
 
         @Override
@@ -273,15 +279,7 @@ public class CadastroActivity extends AppCompatActivity implements LoaderCallbac
                     JSONObject objJson = new JSONObject(json);
                     JSONArray UsuariosJson = objJson.getJSONArray("usuarios");
                     JSONObject usuario = new JSONObject(UsuariosJson.getString(0));
-                    Log.i("USUARIO", mNome + mEmail);
-                    Usuario uUsuario = new Usuario();
-                    uUsuario.setNomeUsuario(mNome);
-                    uUsuario.setNomeUsuario(mEmail);
-                    uUsuario.setNomeUsuario(mAtividadeProfissional);
-                    uUsuario.setNomeUsuario(md5(mSenha));
                     uUsuario.setIdUsuario(usuario.getInt("idUsuario"));
-
-                    salvarLogin(uUsuario);
                 } catch (JSONException e) {
                     Log.i("ERRO", e.toString());
                 }
@@ -297,6 +295,7 @@ public class CadastroActivity extends AppCompatActivity implements LoaderCallbac
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
             showProgress(false);
+            salvarLogin(uUsuario);
 
             if (success) {
                 finish();
@@ -324,7 +323,6 @@ public class CadastroActivity extends AppCompatActivity implements LoaderCallbac
         if (null == input) return null;
 
         try {
-
             //Create MessageDigest object for MD5
             MessageDigest digest = MessageDigest.getInstance("MD5");
 
@@ -343,7 +341,6 @@ public class CadastroActivity extends AppCompatActivity implements LoaderCallbac
 
     //-----------------------------Salvando dados no SharedPreferences----------------------------//
     public void salvarLogin(Usuario usuario) {
-        Log.i("USUARIO",usuario.getNomeUsuario() +" - "+ usuario.getIdUsuario());
         SharedPreferences settings = getSharedPreferences(getString(R.string.preferences), 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putInt("idUsuario", usuario.getIdUsuario());

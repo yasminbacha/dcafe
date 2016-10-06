@@ -45,8 +45,7 @@ public class CriarBanco extends SQLiteOpenHelper {
                 "comentariosDemarcacao text," +
                 "coodernadasDemarcacao text," +
                 "statusDemarcacao text,"+
-                "flagSincronizado int"+
-                ");";
+                "flagSincronizado integer);";
 
         db.execSQL(sqlClasse);
         db.execSQL(sqlMapa);

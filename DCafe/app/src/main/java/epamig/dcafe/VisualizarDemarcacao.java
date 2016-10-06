@@ -175,7 +175,17 @@ public class VisualizarDemarcacao extends AppCompatActivity implements OnMapRead
     public void ColocarPoligonoOriginalMapa() {
         //----------------------------colocar poligono no mapa------------------------------------//
         List<LatLng> LatLong = criarPoligono(poligonoOriginal.getCoodernadasPoligono());
-        String Classe = bd.selecionarNomeClassePorId(poligonoOriginal.getClassePoligono());
+        String Classe;
+
+        String coodernadasRedesenhada = demarcacao.getCoodernadasDemarcacao();
+        if (coodernadasRedesenhada != null && !coodernadasRedesenhada.isEmpty() && idPoligono>0) {
+
+            Classe = bd.selecionarNomeClassePorId(poligonoOriginal.getClassePoligono());
+        }else{
+            Classe = bd.selecionarNomeClassePorId(demarcacao.getClasse_idClasse());
+        }
+
+
         int corClasse = pegarCorClasse(Classe);
         Polygon mClickablePolygonWithHoles = map.addPolygon(new PolygonOptions()
                 .addAll(LatLong)
@@ -194,9 +204,11 @@ public class VisualizarDemarcacao extends AppCompatActivity implements OnMapRead
     public void ColocarPoligonoRedemarcadoMapa() {
         //----------------------------colocar poligono no mapa------------------------------------//
         List<LatLng> LatLong = criarPoligonoRedesenhado(demarcacao.getCoodernadasDemarcacao());
-
+        Log.i("TESTE - Redemarcado", demarcacao.getCoodernadasDemarcacao());
         String Classe = bd.selecionarNomeClassePorId(demarcacao.getClasse_idClasse());
+
         int corClasse = pegarCorClasse(Classe);
+
 
         Polygon mClickablePolygonWithHoles = map.addPolygon(new PolygonOptions()
                 .addAll(LatLong)

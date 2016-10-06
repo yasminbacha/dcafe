@@ -8,7 +8,7 @@ import android.graphics.Color;
 
 public class Aplicacao  extends Application {
 
-    private String IP = "http://192.168.1.7:8080/demarcafe/";
+    private String IP = "http://www.honeycode.com.br/demarcafe/";
     ////200.235.75.13
     //200.235.75.13
     //192.168.1.4
@@ -17,7 +17,7 @@ public class Aplicacao  extends Application {
     private static int corClasseCafe = Color.argb(50, 255, 0, 0);
     private static int corClasseMata = Color.argb(50, 0, 255, 0);
     private static int corClasseOutrosUsos = Color.argb(50, 255, 255, 0);
-    private static int corClasseAreaUrbana = Color.argb(50, 61, 61, 61);
+    private static int corClasseAreaUrbana = Color.argb(50, 0, 0, 0);//61, 61, 61
 
     public String getIP() {
         return IP;

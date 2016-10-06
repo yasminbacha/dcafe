@@ -37,6 +37,8 @@ public class SincronizacaoActivity extends AppCompatActivity {
         //chamarClassePrincipal();
         inserirClassesEMapas();
         pegarValoresWebService();
+
+        //TODOFAZER consultas
     }
 
     //---------------------------Função Assíncrona que pega os valores do Webservice----------------//

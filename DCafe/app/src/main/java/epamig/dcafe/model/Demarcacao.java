@@ -49,6 +49,10 @@ public class Demarcacao {
         this.flagSincronizado = flagSincronizado;
     }
 
+    public int getFlagSincronizado() {
+        return flagSincronizado;
+    }
+
     public int getIdDemarcacao() {
         return idDemarcacao;
     }
