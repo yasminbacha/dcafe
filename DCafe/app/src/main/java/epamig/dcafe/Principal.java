@@ -80,8 +80,7 @@ public class Principal extends AppCompatActivity
     private static int NAOSINCRONIZADO = 0;
     public ControlarBanco bd;
     int check = 0;
-
-    private static String CIDADEINICIAL = "Lavras";
+    String CIDADEINICIAL = "Olimpio Noronha";//"Brazopolis";
     //TODO sempre trocar
 
     //SINCRONIZACAO
@@ -108,8 +107,11 @@ public class Principal extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_principal);
+
+
         //----------------Iniciar BANCO---------------------------------------------------------//
         bd = new ControlarBanco(getBaseContext());
+
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -140,6 +142,7 @@ public class Principal extends AppCompatActivity
         //------------------------------Preencher Spinner Cidades---------------------------------//
 
         final List<String> Cidades = bd.ListarTodasAsCidades();
+        CIDADEINICIAL = Cidades.get(0);
         spCidades = (Spinner) findViewById(R.id.spCidades);
 
         ArrayAdapter<String> spinnerArrayAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, Cidades);
@@ -151,27 +154,25 @@ public class Principal extends AppCompatActivity
                 final String Cidade = parent.getItemAtPosition(posicao).toString();
                 check = check + 1;
                 if (check > 1) {
-
-                    //----------------------------Mover para cidade-------------------------------------------//
-                    LatLngBounds CidadeAtual = pegarCidadeAtual(Cidade);
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(CidadeAtual.getCenter(), 14));
-                    //------------------------Limpar Mapa-----------------------------------------------------//
-                    map.clear();
                     //----------------------------pegar a lista----------------------------------------------//
-/*                    dialog = ProgressDialog.show(Principal.this, "Aguarde", "Sincronizando as áreas", false, true);
-                    dialog.setCancelable(false);
+                    /*mDialog = ProgressDialog.show(Principal.this, "Aguarde", "Sincronizando as áreas", false, true);
+                    mDialog.setCancelable(false);
                     new Thread() {
                         public void run() {
                             try {*/
-                    //TODO
-                    colocarPoligonosnoMapa(Cidade);
-                                /*dialog.dismiss();
+                                //------------------------Limpar Mapa-----------------------------------------------------//
+                                map.clear();
+                                //----------------------------Mover para cidade-------------------------------------------//
+                                LatLngBounds CidadeAtual = pegarCidadeAtual(Cidade);
+                                map.moveCamera(CameraUpdateFactory.newLatLngZoom(CidadeAtual.getCenter(), 14));
+                                colocarPoligonosnoMapa(Cidade);
+                                /*mDialog.dismiss();
                             } catch (Exception e) {
                                 Log.i("ERRO POLIGONOS NO MAPA", e.toString());
-
                             }
                         }
                     }.start();*/
+
                 }
             }
 
@@ -503,6 +504,46 @@ public class Principal extends AppCompatActivity
     }
     //-------------------------------------------------------------------------------------------//
 
+    private void colocarPoligonosnoMapaAreaUrbana(String cidade) {
+        List<Poligono> Poligonos = bd.ListarTodosPoligonosObjetosCidadeAreaUrbana(cidade);
+        int quant = Poligonos.size();
+        if (quant > 0) {
+            for (int i = 0; i < quant; i++) {
+                List<LatLng> LatLong = criarPoligono(Poligonos.get(i).getCoodernadasPoligono());
+                String Classe = bd.selecionarNomeClassePorId(Poligonos.get(i).getClassePoligono());
+                int corClasse = pegarCorClasse(Classe);
+                Polygon mClickablePolygonWithHoles = map.addPolygon(new PolygonOptions()
+                        .addAll(LatLong)
+                        .fillColor(corClasse)
+                        .strokeColor(Color.BLACK)
+                        .strokeWidth(3)
+                        .clickable(true));
+
+                bd.alteraidPoligonoSistema(Poligonos.get(i).getIdPoligono(), mClickablePolygonWithHoles.getId());
+            }
+        }
+    }
+
+    private void colocarPoligonosnoMapaOutros(String cidade) {
+        List<Poligono> Poligonos = bd.ListarTodosPoligonosObjetosCidadeOutros(cidade);
+        int quant = Poligonos.size();
+        if (quant > 0) {
+            for (int i = 0; i < quant; i++) {
+                List<LatLng> LatLong = criarPoligono(Poligonos.get(i).getCoodernadasPoligono());
+                String Classe = bd.selecionarNomeClassePorId(Poligonos.get(i).getClassePoligono());
+                int corClasse = pegarCorClasse(Classe);
+                Polygon mClickablePolygonWithHoles = map.addPolygon(new PolygonOptions()
+                        .addAll(LatLong)
+                        .fillColor(corClasse)
+                        .strokeColor(Color.BLACK)
+                        .strokeWidth(3)
+                        .clickable(true));
+
+                bd.alteraidPoligonoSistema(Poligonos.get(i).getIdPoligono(), mClickablePolygonWithHoles.getId());
+            }
+        }
+    }
+
     private void colocarPoligonosnoMapa(String cidade) {
         List<Poligono> Poligonos = bd.ListarTodosPoligonosObjetosCidade(cidade);
         int quant = Poligonos.size();
@@ -542,7 +583,7 @@ public class Principal extends AppCompatActivity
     private LatLngBounds pegarCidadeAtual(String Cidade) {
         String coodernadaDaCidade = bd.SelecionarCoodernadaParaCidade(Cidade);
         List<LatLng> ll = criarPoligono(coodernadaDaCidade);
-        LatLng LatLong = ll.get(2);
+        LatLng LatLong = ll.get(0);
 
         return new LatLngBounds(LatLong, LatLong);
     }
@@ -715,7 +756,7 @@ public class Principal extends AppCompatActivity
         @Override
         protected void onPostExecute(final Boolean success) {
             mAuthTask = null;
-           // mDialog.dismiss();
+            // mDialog.dismiss();
             bd.deletarTodasDemarcacoes();
             pegarTodasDemarcacoes();
         }
@@ -783,11 +824,11 @@ public class Principal extends AppCompatActivity
                 Demarcacao demarcacaoBaixada = new Demarcacao();
                 String demarcacaoCoodernadas = jsonDemarcacao.getString("coodernadasPoligono");
 
-                if(demarcacaoCoodernadas != null && !demarcacaoCoodernadas.isEmpty() && !demarcacaoCoodernadas.equals("null")){
-                   List <LatLng> latlongi = criarPoligono(jsonDemarcacao.getString("coodernadasPoligono"));
+                if (demarcacaoCoodernadas != null && !demarcacaoCoodernadas.isEmpty() && !demarcacaoCoodernadas.equals("null")) {
+                    List<LatLng> latlongi = criarPoligono(jsonDemarcacao.getString("coodernadasPoligono"));
                     demarcacaoCoodernadas = latlongi.toString();
 
-                }else{
+                } else {
                     demarcacaoCoodernadas = null;
                 }
                 demarcacaoBaixada.setUsuario_idUsuario(jsonDemarcacao.getInt("Usuario_idUsuario"));

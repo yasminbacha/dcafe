@@ -8,7 +8,9 @@ import android.graphics.Color;
 
 public class Aplicacao  extends Application {
 
-    private String IP = "http://www.honeycode.com.br/demarcafe/";
+    private String IP = "http://www.honeycode.com.br/demarcafe/";//http://200.235.75.13/demarcafe/";
+
+    //http://www.honeycode.com.br/demarcafe/";
     ////200.235.75.13
     //200.235.75.13
     //192.168.1.4

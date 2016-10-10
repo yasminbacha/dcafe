@@ -47,12 +47,11 @@ public class SincronizacaoActivity extends AppCompatActivity {
         //client.setConnectTimeout(20000);
         mDialog.show();
         client.get(
-                 IP + "poligonos.php", new TextHttpResponseHandler() {
+                 IP + "poligonosAvaliacao.php", new TextHttpResponseHandler() {
 
                     @Override
                     public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
                         mDialog.dismiss();
-
                         String erro = new Exception(throwable).getMessage();
                         Log.i("ERRO", "Erro no download: "+erro);
                     }
@@ -63,7 +62,6 @@ public class SincronizacaoActivity extends AppCompatActivity {
                         Log.i("DEU certo", "It's ok");
                         mDialog.dismiss();
                         chamarClassePrincipal();
-
                     }
                 });
     }
@@ -118,7 +116,7 @@ public class SincronizacaoActivity extends AppCompatActivity {
         try {
             JSONObject objJson = new JSONObject(jsonString);
             JSONArray poligonosJson = objJson.getJSONArray("poligono");
-            ControlarBanco bd = new ControlarBanco(getBaseContext());
+            ControlarBanco bd = new ControlarBanco(SincronizacaoActivity.this);
 
             for (int i = 0; i < poligonosJson.length(); i++) {
                 JSONObject jsonPoligono = new JSONObject(poligonosJson.getString(i));

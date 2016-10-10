@@ -416,7 +416,7 @@ public class ControlarBanco {
 
     public String SelecionarCoodernadaParaCidade(String Cidade) {
         int idMapa = selecionarIdMapaCidadeMapa(Cidade);
-        int idClasse = selecionarIdClasse("Cafe");
+        int idClasse = selecionarIdClasse("Area_urbana");
         String sql = "SELECT coodernadasPoligono FROM poligono WHERE Mapa_idMapa=" + idMapa + " and Classe_idClasse =" + idClasse + " LIMIT 10";
         db = banco.getWritableDatabase();
         Cursor cursor = db.rawQuery(sql, null);
@@ -482,6 +482,54 @@ public class ControlarBanco {
         int idMapa = selecionarIdMapaCidadeMapa(Cidade);
         List<Poligono> ListPoligonos = new ArrayList<>();
         String query = "SELECT * FROM poligono WHERE Mapa_idMapa = " + idMapa + " ORDER BY Classe_idClasse DESC";
+
+        db = banco.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        Log.i("Quantidade BANCO", "q: " + cursor.getCount());
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Poligono poligono = new Poligono();
+            poligono.setIdPoligono(cursor.getInt(cursor.getColumnIndex("idPoligono")));
+            poligono.setCoodernadasPoligono(cursor.getString(cursor.getColumnIndex("coodernadasPoligono")));
+            poligono.setClassePoligono(cursor.getInt(cursor.getColumnIndex("Classe_idClasse")));
+            poligono.setMapaPoligono(cursor.getInt(cursor.getColumnIndex("Mapa_idMapa")));
+            ListPoligonos.add(poligono);
+
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return ListPoligonos;
+    }
+    public List<Poligono> ListarTodosPoligonosObjetosCidadeAreaUrbana(String Cidade) {
+
+        int idClasse = selecionarIdClasse("Area_urbana");
+        int idMapa = selecionarIdMapaCidadeMapa(Cidade);
+        List<Poligono> ListPoligonos = new ArrayList<>();
+        String query = "SELECT * FROM poligono WHERE Mapa_idMapa = " + idMapa + " AND Classe_idClasse = " +idClasse;//Area urbana
+
+        db = banco.getWritableDatabase();
+        Cursor cursor = db.rawQuery(query, null);
+        Log.i("Quantidade BANCO", "q: " + cursor.getCount());
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            Poligono poligono = new Poligono();
+            poligono.setIdPoligono(cursor.getInt(cursor.getColumnIndex("idPoligono")));
+            poligono.setCoodernadasPoligono(cursor.getString(cursor.getColumnIndex("coodernadasPoligono")));
+            poligono.setClassePoligono(cursor.getInt(cursor.getColumnIndex("Classe_idClasse")));
+            poligono.setMapaPoligono(cursor.getInt(cursor.getColumnIndex("Mapa_idMapa")));
+            ListPoligonos.add(poligono);
+
+            cursor.moveToNext();
+        }
+        cursor.close();
+        return ListPoligonos;
+    }
+    public List<Poligono> ListarTodosPoligonosObjetosCidadeOutros(String Cidade) {
+
+        int idClasse = selecionarIdClasse("Area_urbana");
+        int idMapa = selecionarIdMapaCidadeMapa(Cidade);
+        List<Poligono> ListPoligonos = new ArrayList<>();
+        String query = "SELECT * FROM poligono WHERE Mapa_idMapa = " + idMapa + " AND Classe_idClasse != "+idClasse;
 
         db = banco.getWritableDatabase();
         Cursor cursor = db.rawQuery(query, null);

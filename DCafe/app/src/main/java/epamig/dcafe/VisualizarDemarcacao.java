@@ -1,6 +1,8 @@
 package epamig.dcafe;
 
 import android.graphics.Color;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,6 +22,7 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,7 +106,7 @@ public class VisualizarDemarcacao extends AppCompatActivity implements OnMapRead
             txtCidadePoligono.setText(CidadePoligono);
         }else{
             txtClasseOriginalPoligono.setText("Nova área");
-            txtCidadePoligono.setText("Cidade: Lavras");
+            txtCidadePoligono.setText("");//TODO//"Cidade: Lavras");
         }
 
         String ClasseDemarcada = "Uso demarcado: " + bd.selecionarNomeClassePorId(demarcacao.getClasse_idClasse());
@@ -204,6 +207,17 @@ public class VisualizarDemarcacao extends AppCompatActivity implements OnMapRead
     public void ColocarPoligonoRedemarcadoMapa() {
         //----------------------------colocar poligono no mapa------------------------------------//
         List<LatLng> LatLong = criarPoligonoRedesenhado(demarcacao.getCoodernadasDemarcacao());
+        double latitude = LatLong.get(0).latitude;
+        double longitude = LatLong.get(0).longitude;
+        String cidade = "";
+        try {
+            cidade = buscarCidade(latitude, longitude);
+        } catch (IOException e) {
+
+            e.printStackTrace();
+        }
+        txtCidadePoligono.setText("Cidade: "+cidade);
+
         Log.i("TESTE - Redemarcado", demarcacao.getCoodernadasDemarcacao());
         String Classe = bd.selecionarNomeClassePorId(demarcacao.getClasse_idClasse());
 
@@ -270,5 +284,18 @@ public class VisualizarDemarcacao extends AppCompatActivity implements OnMapRead
             poligonoList.add(new LatLng(lat, longii));
         }
         return poligonoList;
+    }
+
+    public String buscarCidade(double latitude, double longitude) throws IOException {
+        Geocoder geocoder;
+        Address address = null;
+        List<Address> addresses;
+
+        geocoder = new Geocoder(getApplicationContext());
+        addresses = geocoder.getFromLocation(latitude, longitude, 1);
+        if(addresses.size() >0){
+            address = addresses.get(0);
+        }
+        return  address.getLocality();
     }
 }
