@@ -80,8 +80,7 @@ public class Principal extends AppCompatActivity
     private static int NAOSINCRONIZADO = 0;
     public ControlarBanco bd;
     int check = 0;
-    String CIDADEINICIAL = "Olimpio Noronha";//"Brazopolis";
-    //TODO sempre trocar
+    String CIDADEINICIAL = "";
 
     //SINCRONIZACAO
     UserDemarcacaoTask mAuthTask = null;
