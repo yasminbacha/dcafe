@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -41,10 +42,27 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.TextHttpResponseHandler;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import cz.msebera.android.httpclient.Header;
+import cz.msebera.android.httpclient.HttpResponse;
+import cz.msebera.android.httpclient.NameValuePair;
+import cz.msebera.android.httpclient.client.HttpClient;
+import cz.msebera.android.httpclient.client.entity.UrlEncodedFormEntity;
+import cz.msebera.android.httpclient.client.methods.HttpPost;
+import cz.msebera.android.httpclient.impl.client.DefaultHttpClient;
+import cz.msebera.android.httpclient.message.BasicNameValuePair;
+import cz.msebera.android.httpclient.util.EntityUtils;
 import epamig.dcafe.bancodedados.ControlarBanco;
 import epamig.dcafe.model.Demarcacao;
 import epamig.dcafe.model.Poligono;
@@ -54,21 +72,22 @@ import epamig.dcafe.sistema.Aplicacao;
 
 public class Principal extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback, GoogleMap.OnMyLocationButtonClickListener,
-        ActivityCompat.OnRequestPermissionsResultCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener
-
-
-{
+        ActivityCompat.OnRequestPermissionsResultCallback, GoogleMap.OnMapLongClickListener {
 
     private GoogleMap map;
     private AlertDialog alerta;
     private Spinner spCidades;
-
+    private static int NAOSINCRONIZADO = 0;
     public ControlarBanco bd;
     int check = 0;
 
     private static String CIDADEINICIAL = "Lavras";
     //TODO sempre trocar
-    ProgressDialog dialog;
+
+    //SINCRONIZACAO
+    UserDemarcacaoTask mAuthTask = null;
+    ProgressDialog mDialog;
+    public static String IP = new Aplicacao().getIP();
 
     //--------------------------------Cores das Classes--------------------------------//
     Aplicacao ap = new Aplicacao();
@@ -176,8 +195,7 @@ public class Principal extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.action_sincronizar_demarcacao) {
-            Toast.makeText(getApplicationContext(), "CLICOU SINCRONIZAR", Toast.LENGTH_LONG).show();
-            //TODO sincronizar
+            Sincronizar();
         }
         return super.onOptionsItemSelected(item);
     }
@@ -238,7 +256,9 @@ public class Principal extends AppCompatActivity
                 demarcacao.setClasse_idClasse(idClasseSelecionada);
                 demarcacao.setUsuario_idUsuario(getIdUsuarioPreferences());
                 demarcacao.setComentariosDemarcacao(edtComentarios.getText().toString());
+                demarcacao.setCoodernadasDemarcacao("");
                 demarcacao.setStatusDemarcacao(getString(R.string.naoAvaliado));
+                demarcacao.setFlagSincronizado(0);
 
                 //Salvar demarcação
                 bd.insereDemarcacao(demarcacao);
@@ -283,6 +303,7 @@ public class Principal extends AppCompatActivity
                 demarcacao.setUsuario_idUsuario(getIdUsuarioPreferences());
                 demarcacao.setComentariosDemarcacao(edtComentarios.getText().toString());
                 demarcacao.setStatusDemarcacao(getString(R.string.naoAvaliado));
+                demarcacao.setFlagSincronizado(0);
 
                 //Salvar demarcação
                 bd.insereDemarcacao(demarcacao);
@@ -339,7 +360,7 @@ public class Principal extends AppCompatActivity
 
         btDemarcar.setOnClickListener(new View.OnClickListener() {
             public void onClick(View arg0) {
-                //INSERIR
+
                 String nomeClasse = "";
                 if (rbAgua.isChecked()) {
                     nomeClasse = getString(R.string.nomeClasseAgua);
@@ -362,7 +383,7 @@ public class Principal extends AppCompatActivity
                 demarcacao.setUsuario_idUsuario(getIdUsuarioPreferences());
                 demarcacao.setComentariosDemarcacao(edtComentarios.getText().toString());
                 demarcacao.setStatusDemarcacao(getString(R.string.naoAvaliado));
-
+                demarcacao.setFlagSincronizado(0);
                 //Salvar demarcação
                 bd.insereDemarcacao(demarcacao);
                 int idDemarcacao = bd.selecionarIddaUltimaDemarcacaoInserida();
@@ -418,9 +439,7 @@ public class Principal extends AppCompatActivity
                 alertarCliquePoligono(polygon.getId());
             }
         });
-
         map.setOnMapLongClickListener(this);
-        map.setOnMapClickListener(this);
     }
 
     //--------------------PERMITIR MINHA LOCALIZAÇÂO----------------------------------------//
@@ -594,10 +613,6 @@ public class Principal extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void onMapClick(LatLng latLng) {
-        //  Log.i("Clique no mapa", "LatLong: " + latLng);
-    }
 
     @Override
     public void onMapLongClick(LatLng latLng) {
@@ -624,4 +639,175 @@ public class Principal extends AppCompatActivity
 
         return usuario;
     }
+
+    ///--------------------------------------SINCRONIZAR------------------------------------------//
+    public void Sincronizar() {
+        //selecionar todos as demarcações
+        //enviar demarcações
+        //Apagar o banco de dados
+        //Baixar todas as demarcações daqioe
+        //Inserir todas as demarcações
+        mDialog = new ProgressDialog(Principal.this);
+        mDialog.setMessage("Sincronizando os dados.");
+        mDialog.setCancelable(false);
+        mDialog.show();
+        List<Demarcacao> ListDemarcacoes = bd.ListarTodasDemarcacoesNaoSincronizada();
+        Log.i("TESTE", "TAM: " + ListDemarcacoes.size());
+        mAuthTask = new UserDemarcacaoTask(ListDemarcacoes);
+        mAuthTask.execute((Void) null);
+
+
+    }
+
+    public class UserDemarcacaoTask extends AsyncTask<Void, Void, Boolean> {
+
+        List<Demarcacao> Demarcacaos;
+        String url = IP + "inserirdemarcacao.php";
+
+        UserDemarcacaoTask(List<Demarcacao> ListDemarcacaos) {
+            Demarcacaos = ListDemarcacaos;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            HttpClient client = new DefaultHttpClient();
+            HttpPost post = new HttpPost(url);
+            for (Demarcacao demarcacao : Demarcacaos) {
+                String coodernadasRedesenhada = demarcacao.getCoodernadasDemarcacao();
+
+                if (coodernadasRedesenhada != null && !coodernadasRedesenhada.isEmpty()) {
+                    coodernadasRedesenhada = ConverteDemarcacoes(demarcacao.getCoodernadasDemarcacao());
+                    demarcacao.setCoodernadasDemarcacao(coodernadasRedesenhada);
+                }
+                ArrayList<NameValuePair> valores = new ArrayList<NameValuePair>();
+                valores.add(new BasicNameValuePair("Usuario_idUsuario", "" + demarcacao.getUsuario_idUsuario()));
+                valores.add(new BasicNameValuePair("Poligono_idPoligono", "" + demarcacao.getPoligono_idPoligono()));
+                valores.add(new BasicNameValuePair("Classe_idClasse", "" + demarcacao.getClasse_idClasse()));
+                valores.add(new BasicNameValuePair("comentariosDemarcacao", demarcacao.getComentariosDemarcacao()));
+                valores.add(new BasicNameValuePair("coodernadasDemarcacao", demarcacao.getCoodernadasDemarcacao()));
+                valores.add(new BasicNameValuePair("statusDemarcacao", demarcacao.getStatusDemarcacao()));
+
+                try {
+                    post.setEntity(new UrlEncodedFormEntity(valores));
+                } catch (UnsupportedEncodingException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    HttpResponse resposta = client.execute(post);
+                    String json = EntityUtils.toString(resposta.getEntity());
+                    try {
+                        JSONObject objJson = new JSONObject(json);
+
+                        Log.i("objJson", objJson.toString());
+
+                    } catch (JSONException e) {
+                        Log.i("ERRO", e.toString());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+
+                }
+            }
+            return true;
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            mAuthTask = null;
+           // mDialog.dismiss();
+            bd.deletarTodasDemarcacoes();
+            pegarTodasDemarcacoes();
+        }
+
+        @Override
+        protected void onCancelled() {
+            mAuthTask = null;
+        }
+
+        private String ConverteDemarcacoes(String poligono) {
+            String poligonoList = "";
+
+            int posicaoInicio = poligono.indexOf("(");
+            int posicaoFinal = poligono.indexOf("]");
+            String coodernadas = poligono.substring(posicaoInicio, posicaoFinal);
+            String[] vetorCoodernadas = coodernadas.split(", lat/lng: ");
+            for (int i = 0; i < vetorCoodernadas.length; i++) {
+                String[] latlong = vetorCoodernadas[i].split(",");
+                String lati = latlong[0].substring(latlong[0].indexOf("(") + 1);
+                String longi = latlong[1].substring(0, latlong[1].indexOf(")"));
+                Double longii = Double.parseDouble(longi);
+                Double lat = Double.parseDouble(lati);
+                poligonoList = poligonoList + longii + " " + lat + ", ";
+            }
+
+            posicaoFinal = poligonoList.indexOf(",");
+            String Primeiro = poligonoList.substring(0, posicaoFinal);
+            poligonoList += Primeiro;
+
+            return poligonoList;
+        }
+
+    }
+
+    private void pegarTodasDemarcacoes() {
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get(
+                IP + "demarcacoesporid.php?idUsuario=" + getIdUsuarioPreferences(), new TextHttpResponseHandler() {
+
+                    @Override
+                    public void onFailure(int statusCode, Header[] headers, String responseString, Throwable throwable) {
+                        mDialog.dismiss();
+
+                        String erro = new Exception(throwable).getMessage();
+                        Log.i("ERRO", "Erro no download: " + erro);
+                    }
+
+                    @Override
+                    public void onSuccess(int statusCode, Header[] headers, String responseString) {
+                        getDemarcacoes(responseString);
+                        Log.i("DEU certo", "It's ok");
+                        mDialog.dismiss();
+
+                    }
+                });
+    }
+
+    private void getDemarcacoes(String json) {
+        try {
+
+            JSONObject objJson = new JSONObject(json);
+            JSONArray demarcacaoJson = objJson.getJSONArray("demarcacao");
+            for (int i = 0; i < demarcacaoJson.length(); i++) {
+                JSONObject jsonDemarcacao = new JSONObject(demarcacaoJson.getString(i));
+                Demarcacao demarcacaoBaixada = new Demarcacao();
+                String demarcacaoCoodernadas = jsonDemarcacao.getString("coodernadasPoligono");
+
+                if(demarcacaoCoodernadas != null && !demarcacaoCoodernadas.isEmpty() && !demarcacaoCoodernadas.equals("null")){
+                   List <LatLng> latlongi = criarPoligono(jsonDemarcacao.getString("coodernadasPoligono"));
+                    demarcacaoCoodernadas = latlongi.toString();
+
+                }else{
+                    demarcacaoCoodernadas = null;
+                }
+                demarcacaoBaixada.setUsuario_idUsuario(jsonDemarcacao.getInt("Usuario_idUsuario"));
+                demarcacaoBaixada.setPoligono_idPoligono(jsonDemarcacao.getInt("Poligono_idPoligono"));
+                demarcacaoBaixada.setClasse_idClasse(jsonDemarcacao.getInt("Classe_idClasse"));
+                Log.i("Inserir demarcacoes", "ID CLASSE: " + demarcacaoBaixada.getClasse_idClasse());
+
+                demarcacaoBaixada.setComentariosDemarcacao(jsonDemarcacao.getString("comentariosDemarcacao"));
+                demarcacaoBaixada.setCoodernadasDemarcacao(demarcacaoCoodernadas);
+                demarcacaoBaixada.setStatusDemarcacao(jsonDemarcacao.getString("statusDemarcacao"));
+                demarcacaoBaixada.setFlagSincronizado(jsonDemarcacao.getInt("flagSincronizado"));
+                //---------------Salvar no  Banco-------------------------------------------------//
+                String resultado = bd.insereDemarcacaoCompleta(demarcacaoBaixada);
+                Log.i("Inserir demarcacoes", resultado);
+            }
+        } catch (JSONException e) {
+            Log.e("Erro", "Erro no parsing do JSON", e);
+        }
+    }
+
+    ///-------------------------------------------------------------------------------------------//
 }
+
