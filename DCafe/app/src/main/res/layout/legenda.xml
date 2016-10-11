@@ -1,0 +1,121 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="#80000000"
+    android:orientation="vertical"
+    android:padding="20dp">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Legenda"
+        android:textSize="37px"
+        android:layout_gravity="center"
+        android:textColor="@android:color/black"
+        android:paddingBottom="20px"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="20px">
+
+        <Button
+            android:id="@+id/button"
+            android:layout_width="70px"
+            android:layout_height="70px"
+            android:background="#5000FF00"
+            android:text=""
+            android:width="40px"
+            android:height="40px"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mata"
+            android:textSize="25px"
+            android:textColor="@android:color/black"
+            android:paddingLeft="20px"
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="20px">
+
+        <Button
+            android:layout_width="70px"
+            android:layout_height="70px"
+            android:background="#80FF0000"
+            android:text="" />
+
+        <TextView
+            android:id="@+id/rbCafe"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cafe"
+            android:textSize="25px"
+            android:textColor="@android:color/black"
+            android:paddingLeft="20px" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="20px">
+
+        <Button
+            android:layout_width="70px"
+            android:layout_height="70px"
+            android:background="#50000000"
+            android:text=" " />
+
+        <TextView
+            android:id="@+id/rbArea_urbana"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Area urbana"
+            android:textSize="25px"
+            android:textColor="@android:color/black"
+            android:paddingLeft="20px" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="20px">
+
+        <Button
+            android:layout_width="70px"
+            android:layout_height="70px"
+            android:background="#500000FF"
+            android:text=" " />
+
+        <TextView
+            android:id="@+id/rbAgua"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Água"
+            android:textSize="25px"
+            android:textColor="@android:color/black"
+            android:paddingLeft="20px" />
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/btEntendi"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        android:background="@android:color/darker_gray"
+        android:padding="10dp"
+        android:text="Entendi"
+        android:textColor="@android:color/white" />
+
+
+</LinearLayout>

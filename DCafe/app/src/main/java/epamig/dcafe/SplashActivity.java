@@ -17,7 +17,7 @@ import java.util.TimerTask;
 public class SplashActivity extends AppCompatActivity {
 
     private AlertDialog alerta;
-    private static  int TEMPO = 2000;
+    private static int TEMPO = 1500;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +33,7 @@ public class SplashActivity extends AppCompatActivity {
                     finish();
                     Intent intent = new Intent();
                     intent.setClass(SplashActivity.this, Principal.class);
+
                     startActivity(intent);
                 }
             }, TEMPO);

@@ -138,8 +138,22 @@ public class Principal extends AppCompatActivity
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        //------------------------------Preencher Spinner Cidades---------------------------------//
+        int primeiro = -1;
+        if (savedInstanceState == null) {
+            Bundle extras = getIntent().getExtras();
+            if (extras == null) {
+                primeiro = -1;
+            } else {
+                primeiro = extras.getInt("primeiro");
+            }
+        } else {
+            primeiro = (int) savedInstanceState.getSerializable("primeiro");
+        }
+        if (primeiro == 1) {
+            alertarLegenda();
+        }
 
+        //------------------------------Preencher Spinner Cidades---------------------------------//
         final List<String> Cidades = bd.ListarTodasAsCidades();
         CIDADEINICIAL = Cidades.get(0);
         spCidades = (Spinner) findViewById(R.id.spCidades);
@@ -159,12 +173,12 @@ public class Principal extends AppCompatActivity
                     new Thread() {
                         public void run() {
                             try {*/
-                                //------------------------Limpar Mapa-----------------------------------------------------//
-                                map.clear();
-                                //----------------------------Mover para cidade-------------------------------------------//
-                                LatLngBounds CidadeAtual = pegarCidadeAtual(Cidade);
-                                map.moveCamera(CameraUpdateFactory.newLatLngZoom(CidadeAtual.getCenter(), 14));
-                                colocarPoligonosnoMapa(Cidade);
+                    //------------------------Limpar Mapa-----------------------------------------------------//
+                    map.clear();
+                    //----------------------------Mover para cidade-------------------------------------------//
+                    LatLngBounds CidadeAtual = pegarCidadeAtual(Cidade);
+                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(CidadeAtual.getCenter(), 14));
+                    colocarPoligonosnoMapa(Cidade);
                                 /*mDialog.dismiss();
                             } catch (Exception e) {
                                 Log.i("ERRO POLIGONOS NO MAPA", e.toString());
@@ -410,6 +424,29 @@ public class Principal extends AppCompatActivity
         alerta.show();
     }
 
+
+    //-----------------------------------Funções do dialogo -dermarcar nova área e uso da terra---------------//
+    private void alertarLegenda() {
+        LayoutInflater li = getLayoutInflater();
+        View view = li.inflate(R.layout.legenda, null);
+
+        final Button btEntendi = (Button) view.findViewById(R.id.btEntendi);
+
+        btEntendi.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View arg0) {
+                alerta.dismiss();
+            }
+        });
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        //builder.setTitle("Legenda");
+        builder.setView(view);
+        alerta = builder.create();
+        alerta.show();
+    }
+
+
     //-----------------------------------Funções do MAPA------------------------------------------//
     @Override
     public void onMapReady(GoogleMap Mmap) {
@@ -620,13 +657,6 @@ public class Principal extends AppCompatActivity
             super.onBackPressed();
         }
     }
-/*TIREI MENU
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.principal, menu);
-        return true;
-    }*/
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -652,7 +682,6 @@ public class Principal extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 
     @Override
     public void onMapLongClick(LatLng latLng) {
@@ -692,7 +721,6 @@ public class Principal extends AppCompatActivity
         mDialog.setCancelable(false);
         mDialog.show();
         List<Demarcacao> ListDemarcacoes = bd.ListarTodasDemarcacoesNaoSincronizada();
-        Log.i("TESTE", "TAM: " + ListDemarcacoes.size());
         mAuthTask = new UserDemarcacaoTask(ListDemarcacoes);
         mAuthTask.execute((Void) null);
 

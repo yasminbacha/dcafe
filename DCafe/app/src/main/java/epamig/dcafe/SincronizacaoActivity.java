@@ -70,6 +70,7 @@ public class SincronizacaoActivity extends AppCompatActivity {
         finish();
         Intent intent = new Intent();
         intent.setClass(SincronizacaoActivity.this, Principal.class);
+        intent.putExtra("primeiro", 1);
         startActivity(intent);
 
     }
